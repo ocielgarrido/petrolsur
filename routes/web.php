@@ -3,7 +3,7 @@ use App\Http\Controllers\User\MenuController;
 use App\Http\Controllers\User\OilDetailController;
 use App\Http\Controllers\User\ReportController;
 use App\Http\Controllers\Admin\BackupController;
-
+use App\Http\Controllers\Admin\DDJJController;
 use Illuminate\Support\Facades\Route;
 
 
@@ -65,6 +65,11 @@ Route::group([ "middleware" => ['auth:sanctum', 'verified'] ], function() {
     Route::view('/gasse/create', "pages.gasse.gasse-new")->name('gasse.create');
     Route::view('/gasse/edit/{gasseId}', "pages.gasse.gasse-edit")->name('gasse.edit');
 
+    //Consumo Gas
+    Route::get('/consumo',  [MenuController::class, 'gasConsumo'])->name('consumo');
+    Route::view('/consumo/create', "pages.gasse.consumo.consumo-new")->name('consumo.create');
+    Route::view('/consumo/edit/{consumoId}', "pages.gasse.consumo.consumo-edit")->name('consumo.edit');
+
     Route::get('/oil', [MenuController::class, 'mediciontanque'])->name('oil');
     Route::view('/oil/create', "pages.oil.oil-new")->name('oil.create');
     Route::view('/oil/edit/{oilId}', "pages.oil.oil-edit")->name('oil.edit');
@@ -100,6 +105,10 @@ Route::group([ "middleware" => ['auth:sanctum', 'verified'] ], function() {
     Route::get('/report/{rptId}/{fechaFrom}/{fechaTo}/{well_id}',[ReportController::class,'ReportPDF']);
 
     Route::get('/backup', [BackupController::class, 'index'])->name('backups');
+  
+    //Capitulo IV Sesco Regalias
+    Route::get('/download/{folder}/{file}', [DDJJController::class, 'descarga']);
+    Route::get('/ddjj',  [DDJJController::class, 'calcularGas'])->name('calculogas');
  
    
 

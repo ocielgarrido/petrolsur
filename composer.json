@@ -17,6 +17,7 @@
         "laravel/jetstream": "^1.6",
         "laravel/sanctum": "^2.6",
         "laravel/tinker": "^2.0",
+        "larswiegers/laravel-maps": "^0.13.0",
         "livewire/livewire": "^2.0",
         "nesbot/carbon": "^2.56",
         "spatie/laravel-backup": "7.0",

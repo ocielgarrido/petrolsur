@@ -63,6 +63,7 @@ $links = [
                     ["href" => "wellintervention", "text" => "Intervención a Pozo", "icon"=>"fa fa-user","can" =>"Movimientos"],
                     ["href" => "post", "text" => "Novedades", "icon"=>"fa fa-user","can" =>"Movimientos"],
                     ["href" => "variation", "text" => "Incrementos /Mermas", "icon"=>"fa fa-user","can" =>"Movimientos"],
+                    ["href" => "consumo", "text" => "Consumo Gas", "icon"=>"fa fa-user","can" =>"Gas"],
                     ["href" => "gasse", "text" => "Datos Gas", "icon"=>"fa fa-user","can" =>"Gas"],
                     ["href" => "oil", "text" => "Datos tanques", "icon"=>"fa fa-user","can" =>"Oil"],
          
@@ -74,7 +75,25 @@ $links = [
         "is_multi" => true,
         'icon' =>'fa fa-user'
     ],
-
+    [
+        "href" => [
+            [
+                "section_text" => "Procesos Periódicos",
+                "section_list" => [
+                
+                    ["href" => "area", "text" => "DDJJ Cap. IV", "icon"=>"fa fa-user","can" =>"Areas"],
+                    ["href" => "well", "text" => "DDJJ Sesco", "icon"=>"fa fa-user","can" =>"Pozos"],
+                    ["href" => "tank", "text" => "Regalias", "icon"=>"fa fa-user","can" =>"Tanques"],
+        
+                ],
+       
+            ]
+        ],
+        "text" => "Procesos Periódicos",
+        "is_multi" => true,
+        'icon' =>'fa fa-user'
+ 
+    ],
     [
         "href" => [
             [

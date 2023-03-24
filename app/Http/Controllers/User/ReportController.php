@@ -21,6 +21,7 @@ use App\Models\WellVariation;
 use App\Models\HTablet;
 //use App\Models\Tanks; 
 use App\Models\Well; 
+use App\Models\Informem;
 //use Carbon\Carbon;
 //use Barryvdh\DomPDF\PDF as DOMPDF;
 use DateTime;
@@ -183,14 +184,17 @@ class ReportController extends Controller
                     'dias' => $dias,
                     'area' => "CCO-NORTE",
                     'desde' => $fechaFrom,
-                    'hasta' =>$fechaTo
+                    'hasta' =>$fechaTo,
+                    'fecha' => $fechaDesde
                     
                 );
-               
+                
+                $this->storeProdMensual($datosprod);
                 $pdf = app('dompdf.wrapper');
                 $pdf->loadView('pages.report.html.partemensual', compact('datosprod'));
                 return $pdf->stream('Parte_Produccion_Mensual.pdf'); 
                 break;
+
              case('3'):
                 $title="Controles de Pozo";
                 $desde= (new DateTime($fechaFrom))->format('Y-m-d');
@@ -235,6 +239,48 @@ class ReportController extends Controller
                    
     
         }
+
+    }
+
+    public function storeProdMensual($data){
+       $results=array(
+        'area_id' => 1,
+        'fecha' =>$data['fecha'],
+        'prod_bruta' =>$data['prod_bruta'],
+        'oilH' =>$data['prod_oil'],
+        'oilD' =>$data['prod_oilD'],
+        'gas' =>$data['prod_gas'],
+        'agua' =>$data['prod_agua'],
+        'ventas_oil' =>$data['ventas'],
+        'gasolina' =>$data['gasolina'],
+        'estado' =>1,
+        'created_at' =>now(),
+        'updated_at' =>now(),
+
+       );
+       $count =Informem::where(['fecha'=> $data['fecha'], 'area_id'=>1])->count();
+       if ($count==0){
+        Informem::insert($results);
+       }else{
+        $dI =Informem::where(['fecha'=> $data['fecha'], 'area_id'=>1])->first();
+        Informem::query()
+        ->where('id', $dI->id)           
+        ->update([
+            'area_id' => 1,
+            'fecha' =>$data['fecha'],
+            'prod_bruta' =>$data['prod_bruta'],
+            'oilH' =>$data['prod_oil'],
+            'oilD' =>$data['prod_oilD'],
+            'gas' =>$data['prod_gas'],
+            'agua' =>$data['prod_agua'],
+            'ventas_oil' =>$data['ventas'],
+            'gasolina' =>$data['gasolina'],
+            'estado' =>1,
+            'updated_at' =>now(),
+    
+        ]);
+
+       }  
 
     }
 }

@@ -17,6 +17,7 @@ class CreateYacimientosTable extends Migration
             $table->id();
             $table->foreignId('area_id')->constrained();
             $table->string('nombre', 20)->unique(); 
+            $table->string('yac_artiv', 20)->unique(); 
             $table->timestamps();
         });
     }

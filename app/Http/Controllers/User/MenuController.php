@@ -23,6 +23,7 @@ use App\Models\WellIntervention;
 use App\Models\WellVariation;
 use App\Models\Post;
 use App\Models\Gasse;
+use App\Models\GasseConsumo;
 use App\Models\Oil;
 
 class MenuController extends Controller
@@ -141,6 +142,13 @@ class MenuController extends Controller
             'gasse' => Gasse::class
         ]);
     }
+    public function gasConsumo(){
+        //   abort_if(Gate::denies('Gas'), 403); 
+           return view('pages.gasse.consumo.consumo-data', [
+               'consumos' => GasseConsumo::class
+           ]);
+       }
+   
     public function mediciontanque(){
      //   abort_if(Gate::denies('Oil'), 403); 
         return view('pages.oil.oil-data', [

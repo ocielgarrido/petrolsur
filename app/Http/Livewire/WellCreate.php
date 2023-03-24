@@ -6,7 +6,7 @@ use Livewire\Component;
 use App\Models\Well;
 use App\Models\WellState;
 use App\Models\WellFormation;     
-  
+use App\Models\Yacimiento;    
     class WellCreate extends Component
 
     {
@@ -14,6 +14,7 @@ use App\Models\WellFormation;
         public $formations,$formation_id;
         public $well;
         public $wellId;
+        public $yacimientos;
         public $action;
         public $button;
     
@@ -39,6 +40,7 @@ use App\Models\WellFormation;
                 ->where('id', $this->wellId)
                 ->update([
                     'area_id' =>$this->well->area_id,
+                    'yacimiento_id' =>$this->well->yacimiento_id,
                     "pozo" => $this->well->pozo,
                     "well_formation_id" => $this->well->well_formation_id,
                     "cap_iv_nombre" => $this->well->cap_iv_nombre,
@@ -52,6 +54,22 @@ use App\Models\WellFormation;
                     "termi_ini" => $this->well->termi_ini,
                     "termi_fin" => $this->well->termi_fin,
                     "well_state_id"  => $this->well->well_state_id,
+                    "cota" => $this->well->cota,
+                    "prod_oil_dic" => $this->well->prod_oil_dic,
+                    "prod_gas_dic" => $this->well->prod_gas_dic,
+                    "prod_agua_dic" => $this->well->prod_agua_dic,
+                    "iny_agua_dic" => $this->well->iny_agua_dic,
+                    "iny_gas_dic" => $this->well->iny_gas_dic,
+                    "iny_co_dic" => $this->well->iny_co_dic,
+                    "iny_otr_dic" => $this->well->iny_otr_dic,
+                    "vida_util_dic" => $this->well->vida_util_dic,
+                    "abandono" => $this->well->abandono,
+                    "tipo" => $this->well->tipo,
+                    "capacidad" => $this->well->capacidad,
+                    "idpozo" => $this->well->idpozo,
+                    'arap' => $this->well->arap,
+                    "updated_at" =>now(),
+            
                
                 ]);
     
@@ -66,6 +84,8 @@ use App\Models\WellFormation;
         {
             if (!$this->well && $this->wellId) {
                  $this->well = Well::find($this->wellId);
+            }else{
+                $this->well = new Well;
             }
     
             $this->button = create_button($this->action, "Well");
@@ -78,10 +98,11 @@ use App\Models\WellFormation;
         {
             $this->states=WellState::all();
             $this->formations = WellFormation::all();      
-        
+            $this->yacimientos=Yacimiento::all();
             return view('livewire.well-create',[
                 'states' => $this->states,
                 'formations' => $this->formations,
+                'yacimientos' => $this->yacimientos
                 ]);
         }
     
@@ -90,11 +111,13 @@ use App\Models\WellFormation;
                 $rules = [
                     'well.pozo' => 'required|min:5|max:20|unique:wells,pozo,' .$this->wellId,
                     'well.cap_iv_nombre' => 'required|min:5|max:30|unique:wells,cap_iv_nombre,' .$this->wellId,
+                    'well.yacimiento_id' => 'required',
                 ];
             }else{
                 $rules = [
                     'well.pozo' => 'required|min:5|max:20|unique:well,nombre',
                     'well.cap_iv_nombre' => 'required|min:5|max:30|unique:well,nombre',
+                    'well.yacimiento_id' => 'required',
                 ];
     
             }
@@ -111,6 +134,22 @@ use App\Models\WellFormation;
                 'well.termi_ini' => 'nullable',
                 'well.termi_fin' => 'nullable',
                 'well.well_state_id' => 'required',
+                'well.cota' => 'required',
+                'well.idpozo' =>'required',
+                'well.prod_oil_dic' => 'required',
+                'well.prod_gas_dic' => 'required',
+                'well.prod_agua_dic' => 'required',
+                'well.iny_agua_dic' => 'required',
+                'well.iny_gas_dic' => 'required',
+                'well.iny_co_dic' => 'required',
+                'well.iny_otr_dic' => 'required',
+                'well.vida_util_dic' => 'required',
+                'well.abandono' => 'required',
+                'well.tipo' => 'required',
+                'well.capacidad' => 'required',
+                'well.arap' => 'required',
+        
+
       
             ], $rules);
     

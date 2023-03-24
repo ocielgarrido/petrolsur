@@ -54,6 +54,13 @@ return [
             'url' => env('APP_URL').'/storage',
             'visibility' => 'public',
         ],
+        'ddjj' => [
+            'driver' => 'local',
+            'root' => storage_path('ddjj'),
+            'url' => env('APP_URL').'/storage',
+            'visibility' => 'private',
+        ],
+
 
         's3' => [
             'driver' => 's3',

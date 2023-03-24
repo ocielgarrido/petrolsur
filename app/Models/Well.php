@@ -10,6 +10,7 @@ class Well extends Model
     use HasFactory;
     protected $fillable = [
         'area_id',
+        'idpozo',
         'yacimiento_id',
         'pozo', //string 15
         'well_formation_id',
@@ -23,7 +24,20 @@ class Well extends Model
         'perfo_fin',
         'termi_ini',
         'termi_fin',
-        'well_state_id' //PE=produccion efectiva, PT=parado transitorio, PE=parado en estudio 
+        'well_state_id', //PE=produccion efectiva, PT=parado transitorio, PE=parado en estudio 
+        'cota',
+        'prod_oil_dic',
+        'prod_gas_dic',
+        'prod_agua_dic',
+        'iny_agua_dic',
+        'iny_gas_dic',
+        'iny_co_dic',
+        'iny_otr_dic',
+        'vida_util_dic',
+        'abandono',
+        'tipo',
+        'capacidad',
+        'arap'
     ];
 
     public static function search($query)
@@ -31,6 +45,8 @@ class Well extends Model
         return empty($query) ? static::query()
             : static::where('pozo', 'like', '%'.$query.'%')
                 ->orWhere('cap_iv_nombre', 'like', '%'.$query.'%')
+                ->orWhere('tipo', 'like', '%'.$query.'%')
+                ->orWhere('arap', 'like', '%'.$query.'%')
                 ->orWhere('well_formation_id', 'like', '%'.$query.'%');
 
     }

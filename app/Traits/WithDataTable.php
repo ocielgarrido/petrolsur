@@ -10,11 +10,27 @@ trait WithDataTable {
     {
    
         switch ($this->name) {
-               
+            case 'consumo':
+                $consumos= $this->model::search($this->search)
+                ->orderBy($this->sortField, $this->sortAsc ? 'asc' : 'desc')
+                ->paginate($this->perPage);               
+                return [
+                    "view" => 'livewire.table.gasseconsumo',
+                    "consumos" => $consumos,
+                    "data" => array_to_object([
+                        'href' => [
+                            'create_new' => route('consumo.create'),
+                            'create_new_text' => 'Nuevo Consumo',
+                            'export' => '#',
+                            'export_text' => 'Exportar'
+                        ]
+                    ])
+                ];
+                break;              
             case 'tankcontrol':
                     $tankcontrols = $this->model::search($this->search)
-                        ->orderBy($this->sortField, $this->sortAsc ? 'asc' : 'desc')
-                        ->paginate($this->perPage);
+                    ->orderBy($this->sortField, $this->sortAsc ? 'asc' : 'desc')
+                    ->paginate($this->perPage);
 
                     return [
                         "view" => 'livewire.table.tankcontrol',
