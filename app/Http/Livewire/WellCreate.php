@@ -144,7 +144,7 @@ use App\Models\Yacimiento;
                 'well.iny_co_dic' => 'required',
                 'well.iny_otr_dic' => 'required',
                 'well.vida_util_dic' => 'required',
-                'well.abandono' => 'required',
+                'well.abandono' => 'nullable',
                 'well.tipo' => 'required',
                 'well.capacidad' => 'required',
                 'well.arap' => 'required',

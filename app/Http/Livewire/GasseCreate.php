@@ -4,6 +4,7 @@ namespace App\Http\Livewire;
 
 use Livewire\Component;
 use App\Models\Gasse;
+use App\Models\WellControl;
 use Carbon\Carbon;
 use DateTime;
 use Auth;
@@ -86,6 +87,7 @@ class GasseCreate extends Component
  
     }
 
+ 
     public function mount ()
     {
          if (!$this->gasse && $this->gasseId) {

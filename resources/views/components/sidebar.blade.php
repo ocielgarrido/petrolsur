@@ -63,8 +63,7 @@ $links = [
                     ["href" => "wellintervention", "text" => "Intervención a Pozo", "icon"=>"fa fa-user","can" =>"Movimientos"],
                     ["href" => "post", "text" => "Novedades", "icon"=>"fa fa-user","can" =>"Movimientos"],
                     ["href" => "variation", "text" => "Incrementos /Mermas", "icon"=>"fa fa-user","can" =>"Movimientos"],
-                    ["href" => "consumo", "text" => "Consumo Gas", "icon"=>"fa fa-user","can" =>"Gas"],
-                    ["href" => "gasse", "text" => "Datos Gas", "icon"=>"fa fa-user","can" =>"Gas"],
+                     ["href" => "gasse", "text" => "Datos Gas", "icon"=>"fa fa-user","can" =>"Gas"],
                     ["href" => "oil", "text" => "Datos tanques", "icon"=>"fa fa-user","can" =>"Oil"],
          
                 ],

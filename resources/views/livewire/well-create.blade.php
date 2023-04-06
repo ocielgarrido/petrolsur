@@ -76,12 +76,12 @@
             <div class="form-group col-span-6 sm:col-6 grid grid-cols-1 md:grid-cols-4 gap-1">   
                 <div class="mx-1">           
                     <x-jet-label for="latitud" value="{{ __('Latitud:') }}" />
-                    <x-jet-input id="latitud" type="number"    class="mt-1 block w-full form-control shadow-none" wire:model.defer="well.latitud" />
+                    <x-jet-input id="latitud" type="text"    class="mt-1 block w-full form-control shadow-none" wire:model.defer="well.latitud" />
                     <x-jet-input-error for="well.latitud" class="mt-2" />
                 </div>
                 <div class="mx-1">  
                     <x-jet-label for="longitud" value="{{ __('Longitud:') }}" />
-                    <x-jet-input id="longitud" type="number"     class="mt-1 block w-full form-control shadow-none" wire:model.defer="well.longitud" />
+                    <x-jet-input id="longitud" type="text"  class="mt-1 block w-full form-control shadow-none" wire:model.defer="well.longitud" />
                     <x-jet-input-error for="well.longitud" class="mt-2" />        
                 </div>               
                 <div class="mx-1">           

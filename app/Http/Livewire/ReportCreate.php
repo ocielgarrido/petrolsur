@@ -180,7 +180,7 @@ class ReportCreate extends Component
                     $prod_gas= Gasse::select('a9300')->where([ 'fecha' =>$fecha, 'area_id' =>1])->get()->sum('a9300');  
                     $prod_gas = $prod_gas ??  0;
      
-                    
+                     
                     $this->datosprod=array(
                         'oil_dia'=>round(($total_oil_dia),2),
                         'oil_ant'=>round(($total_oil_ant),2),
@@ -193,6 +193,7 @@ class ReportCreate extends Component
                         'total_volumen_dia'=>round(($total_volumen),2),
     
                         'gas_dia' =>$prod_gas,
+  
                         'ventas_dia'=>round($ventas,2) ,
     
                         'movint_agua'=>round($movint_agua,2),
@@ -240,6 +241,8 @@ class ReportCreate extends Component
                 $dataOILD = Oil::select('prod_oil_d')->whereBetween('fecha', [$fechaDesde, $fechaHasta])->get()->sum('prod_oil_d');
                 $dataAGUA = Oil::select('prod_agua')->whereBetween('fecha', [$fechaDesde, $fechaHasta])->get()->sum('prod_agua');
                 $dataGAS = Gasse::select('a9300')->whereBetween('fecha', [$fechaDesde, $fechaHasta])->get()->sum('a9300');
+                $dataGAS316 = Gasse::select('pm316')->whereBetween('fecha', [$fechaDesde, $fechaHasta])->get()->sum('pm316');
+
                 $dataSALE = Sale::select('total')->whereBetween('fecha', [$fechaDesde, $fechaHasta])->get()->sum('total');
                 $dataGASO = Movement::select('volumen')->whereBetween('fecha', [$fechaDesde, $fechaHasta], )->where(['tipo'=>'mov_ext', 'tdestino'=>'T', 'area_id' =>1,'product_id' =>3])->get()->sum('volumen');
                 $this->datosprod=array(
@@ -251,8 +254,14 @@ class ReportCreate extends Component
                     'prod_oilDDia'=>round($dataOILD/$dias,2),
                     'prod_agua'=>round($dataAGUA,2),
                     'prod_aguaDia'=>round($dataAGUA/$dias,2),
+
                     'prod_gas'=>round($dataGAS,2),
                     'prod_gasDia'=>round($dataGAS/$dias,0),
+                    'prod_gas316'=>round($dataGAS316,2),
+                    'prod_gas316Dia'=>round($dataGAS316/$dias,0),
+
+                    
+
                     'ventas'=>round($dataSALE,2),
                     'gasolina'=>round($dataGASO,2),
                     'dias' => $dias,

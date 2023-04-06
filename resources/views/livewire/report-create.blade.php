@@ -378,9 +378,14 @@
                                     <td class="text-right">{{floatval($datosprod['prod_oilDDia'])}} </td>
                                 </tr>
                                 <tr>
-                                    <td>Ventas Gas </td>
+                                    <td>Ventas Gas a9300 </td>
                                     <td class="text-right">{{floatval($datosprod['prod_gas'])}} </td>
                                     <td class="text-right">{{floatval($datosprod['prod_gasDia'])}} </td>
+                                </tr>
+                                <tr>
+                                    <td>Ventas Gas pm316 </td>
+                                    <td class="text-right">{{floatval($datosprod['prod_gas316'])}} </td>
+                                    <td class="text-right">{{floatval($datosprod['prod_gas316Dia'])}} </td>
                                 </tr>
                                 <tr>
                                     <td>Agua</td>

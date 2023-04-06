@@ -11,9 +11,12 @@ trait WithDataTable {
    
         switch ($this->name) {
             case 'consumo':
+               
                 $consumos= $this->model::search($this->search)
+               
                 ->orderBy($this->sortField, $this->sortAsc ? 'asc' : 'desc')
-                ->paginate($this->perPage);               
+                ->paginate($this->perPage);  
+                        
                 return [
                     "view" => 'livewire.table.gasseconsumo',
                     "consumos" => $consumos,

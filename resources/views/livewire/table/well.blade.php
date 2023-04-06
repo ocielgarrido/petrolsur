@@ -12,9 +12,14 @@
                     @include('components.sort-icon', ['field' => 'pozo'])
                 </a></th>
                 <th><a wire:click.prevent="sortBy('well_formation_id')" role="button" href="#">
+                    Id CapIV.
+                    @include('components.sort-icon', ['field' => 'idpozo'])
+                </a></th>
+                <th><a wire:click.prevent="sortBy('well_formation_id')" role="button" href="#">
                     Formación.
                     @include('components.sort-icon', ['field' => 'well_formation->nombre'])
                 </a></th>
+
                 <th><a wire:click.prevent="sortBy('api')" role="button" href="#">
                     Nombre Cap. IV
                     @include('components.sort-icon', ['field' => 'cap_iv_nombre'])
@@ -51,6 +56,7 @@
                 <tr x-data="window.__controller.dataTableController({{ $well->id }})">
                     <td>{{ $well->id }}</td>
                     <td scope="col" style="white-space: nowrap !important;">{{ $well->pozo }}</td>
+                    <td scope="col" style="white-space: nowrap !important;">{{ $well->idpozo }}</td>
                     <td scope="col" style="white-space: nowrap !important;">{{ $well->well_formation->nombre}}</td>
                     <td scope="col" style="white-space: nowrap !important;">{{ $well->cap_iv_nombre}}</td>
                     <td>{{ $well->latitud}}</td>

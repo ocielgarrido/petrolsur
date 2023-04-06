@@ -65,11 +65,7 @@ Route::group([ "middleware" => ['auth:sanctum', 'verified'] ], function() {
     Route::view('/gasse/create', "pages.gasse.gasse-new")->name('gasse.create');
     Route::view('/gasse/edit/{gasseId}', "pages.gasse.gasse-edit")->name('gasse.edit');
 
-    //Consumo Gas
-    Route::get('/consumo',  [MenuController::class, 'gasConsumo'])->name('consumo');
-    Route::view('/consumo/create', "pages.gasse.consumo.consumo-new")->name('consumo.create');
-    Route::view('/consumo/edit/{consumoId}', "pages.gasse.consumo.consumo-edit")->name('consumo.edit');
-
+  
     Route::get('/oil', [MenuController::class, 'mediciontanque'])->name('oil');
     Route::view('/oil/create', "pages.oil.oil-new")->name('oil.create');
     Route::view('/oil/edit/{oilId}', "pages.oil.oil-edit")->name('oil.edit');

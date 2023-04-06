@@ -43,10 +43,12 @@ class Well extends Model
     public static function search($query)
     {
         return empty($query) ? static::query()
-            : static::where('pozo', 'like', '%'.$query.'%')
+            : static::join('well_controls','well.id','=', 'well_control.wel_id_id')
+                ->where('pozo', 'like', '%'.$query.'%')
                 ->orWhere('cap_iv_nombre', 'like', '%'.$query.'%')
                 ->orWhere('tipo', 'like', '%'.$query.'%')
                 ->orWhere('arap', 'like', '%'.$query.'%')
+                ->orWhere('pozo', 'like', '%'.$query.'%')
                 ->orWhere('well_formation_id', 'like', '%'.$query.'%');
 
     }
