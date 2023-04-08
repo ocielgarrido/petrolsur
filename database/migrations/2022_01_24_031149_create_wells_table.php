@@ -29,9 +29,11 @@ class CreateWellsTable extends Migration
             $table->date('perfo_fin')->nullable();
             $table->date('termi_ini')->nullable();
             $table->date('termi_fin')->nullable();
-            $table->foreignId('well_state_id'); 
- 
-            $table->timestamps();
+            $table->foreignId('well_state_id');  
+            $table->string('pet',10)->nullable(); 
+            $table->string('pist',10)->nullable(); 
+            $table->string('obs',255)->nullable(); 
+            $table->timestamps();    
         });
     }
 

@@ -26,6 +26,12 @@ use App\Models\Gasse;
 use App\Models\GasseConsumo;
 use App\Models\Oil;
 
+//para excel y demas
+use Maatwebsite\Excel\Facades\Excel;
+use Maatwebsite\Excel\Facades\FromQuery;
+use Maatwebsite\Excel\Facades\Exportable;
+use App\Exports\WellControlExport;
+
 class MenuController extends Controller
 {
     //Tablas de Sistema //
@@ -89,6 +95,11 @@ class MenuController extends Controller
             'wellcontrol' => WellControl::class
         ]);
     }
+    public function controlpozo_excel(){
+       // abort_if(Gate::denies('WellControl'), 403); 
+        return Excel::download(new WellControlExport, 'controles.xlsx');
+    }
+
     public function paradapozo(){
        // abort_if(Gate::denies('WellDownTime'), 403); 
         return view('pages.well.downtime.downtime-data', [

@@ -21,9 +21,11 @@ class Djj extends Model
         'iny_otro',
         'tef' ,//dias
         'v_util', //vida util
-        'pist', // Codigo Tipo Extracion
-        'arap', //codigo estado pozo
-        'pet', //Tipo pozo
+        'well_state_id', //PE=produccion efectiva, PT=parado transitorio, PE=parado en estudio (ARAP Cap IV)
+        'pet', //Tipo pozo GAS PET 
+        'pist',  //tipo extraccion
+        'obs' 
+
  
 
 

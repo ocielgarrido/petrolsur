@@ -80,9 +80,7 @@ $links = [
                 "section_text" => "Procesos Periódicos",
                 "section_list" => [
                 
-                    ["href" => "area", "text" => "DDJJ Cap. IV", "icon"=>"fa fa-user","can" =>"Areas"],
-                    ["href" => "well", "text" => "DDJJ Sesco", "icon"=>"fa fa-user","can" =>"Pozos"],
-                    ["href" => "tank", "text" => "Regalias", "icon"=>"fa fa-user","can" =>"Tanques"],
+                    ["href" => "ddjj", "text" => "Generar DDJJ Energia", "icon"=>"fa fa-user","can" =>"Generar_DDJJ"],
         
                 ],
        

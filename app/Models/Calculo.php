@@ -9,25 +9,35 @@ class Calculo extends Model
 {
     use HasFactory;
     protected $fillable = [
-        //Campos para gas
+        //Campos para calculos
         'yacimiento_id',
         'well_id', 
         'pozo',
+        'dia',
         'fecha',
-        'm3gas_control' ,
-        'porce_prod',
-        'mt3gas_declara',
-        'agua_declara',
-        'total_mes' ,
-        'total_gral',
-        // campos para petroleo
-        //'bruta_m3',
-       // 'agua',
-       // 'neta_m3',
-       // 'agua_m3',
-       // 'porce_total',
-       // 'bruta_declara',
-      //  'neta_declara',
+        'cb',
+        'cc',
+        'cd',
+        'ce',
+        'cf',
+        'cg',
+        'ch',
+        'ci',
+        'cj',
+        'oilB',
+        'oilD',
+        'aguaM3',
+        'aguaP',
+        'dias',
+        'v_util',
+        'pet', 
+        'totalM' ,
+        'totalG',       
         
+    ];
+
+    protected $casts = [
+        'fecha' => 'datetime:d-m-Y',
+        'dia' => 'datetime:d-m-Y',
     ];
 }

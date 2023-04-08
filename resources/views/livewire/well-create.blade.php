@@ -184,16 +184,16 @@
                     <x-jet-input-error for="well.capacidad" class="mt-2" />                    
                 </div>
                 <div class="mx-1">  
-                    <x-jet-label for="tipo" value="{{ __('Tipo:') }}" />
-                    <select class="form-select" wire:model.defer="well.tipo" >
+                    <x-jet-label for="well.pet" value="{{ __('Tipo (PET):') }}" />
+                    <select class="form-select" wire:model.defer="well.pet" >
                         <option value="--">--Seleccione--</option>                       
                         <option value="GAS">Gas</option>   
                         <option value="PET">Petróleo</option>                                  
                     </select>
-                    <x-jet-input-error for="well.TIPO" class="mt-2" />   
+                    <x-jet-input-error for="well.pet" class="mt-2" />   
                 </div>               
                 <div class="mx-1">  
-                    <x-jet-label for="capacidad" value="{{ __('Estado:') }}" />
+                    <x-jet-label for="well.well_state_id" value="{{ __('Estado (ARAP):') }}" />
                     <select class="form-select" wire:model.defer="well.well_state_id" >
                         <option value="--">--Seleccione--</option>
                         @foreach($states as $state)
@@ -203,8 +203,8 @@
                     <x-jet-input-error for="well.well_state_id" class="mt-2" />   
                 </div>  
                 <div class="mx-1">  
-                    <x-jet-label for="well.arap" value="{{ __('Tipo Ext.:') }}" />
-                    <select class="form-select" wire:model.defer="well.arap" >
+                    <x-jet-label for="well.pist" value="{{ __('Tipo Ext. (PIST):') }}" />
+                    <select class="form-select" wire:model.defer="well.pist" >
                         <option value="">--Seleccione--</option>                       
                         <option value="-">(Ninguno)</option>   
                         <option value="OTE">Otros Tipos de Extracción</option>                                  
@@ -220,7 +220,7 @@
                         <option value="PIST">Pistoneo (Swabbing)</option>                                  
                         <option value="JP">Jet Pump</option>                                  
                     </select>
-                    <x-jet-input-error for="well.arap" class="mt-2" />   
+                    <x-jet-input-error for="well.pist" class="mt-2" />   
                 </div>               
              
             </div>      

@@ -24,7 +24,6 @@ class Well extends Model
         'perfo_fin',
         'termi_ini',
         'termi_fin',
-        'well_state_id', //PE=produccion efectiva, PT=parado transitorio, PE=parado en estudio 
         'cota',
         'prod_oil_dic',
         'prod_gas_dic',
@@ -35,9 +34,10 @@ class Well extends Model
         'iny_otr_dic',
         'vida_util_dic',
         'abandono',
-        'tipo',
         'capacidad',
-        'arap'
+        'well_state_id', //PE=produccion efectiva, PT=parado transitorio, PE=parado en estudio (ARAP Cap IV)
+        'pet', //Tipo pozo GAS PET 
+        'pist'  //tipo extraccion 
     ];
 
     public static function search($query)

@@ -4,6 +4,7 @@ use App\Http\Controllers\User\OilDetailController;
 use App\Http\Controllers\User\ReportController;
 use App\Http\Controllers\Admin\BackupController;
 use App\Http\Controllers\Admin\DDJJController;
+use App\Http\Controllers\Admin\GraficoController;
 use Illuminate\Support\Facades\Route;
 
 
@@ -48,6 +49,7 @@ Route::group([ "middleware" => ['auth:sanctum', 'verified'] ], function() {
     Route::get('/wellcontrol',  [MenuController::class, 'controlpozo'])->name('wellcontrol');
     Route::view('/wellcontrol/create', "pages.well.control.control-new")->name('wellcontrol.create');
     Route::view('/wellcontrol/edit/{wellcontrolId}', "pages.well.control.control-edit")->name('wellcontrol.edit');
+    Route::get('/wellcontrol-excel', [MenuController::class, 'controlpozo_excel'])->name('wellcontrol.xls');
 
     Route::get('/wellintervention',  [MenuController::class, 'intervencionpozo'])->name('wellintervention');
     Route::view('/wellintervention/create', "pages.well.intervention.intervention-new")->name('wellintervention.create');
@@ -104,8 +106,11 @@ Route::group([ "middleware" => ['auth:sanctum', 'verified'] ], function() {
   
     //Capitulo IV Sesco Regalias
     Route::get('/download/{folder}/{file}', [DDJJController::class, 'descarga']);
-    Route::get('/ddjj',  [DDJJController::class, 'calcularGas'])->name('calculogas');
+    Route::get('/ddjj',  [DDJJController::class, 'ddjj'])->name('ddjj');
  
-   
+    //Graficas
+    Route::post('/produccion-oil-mensual', [GraficoController::class, 'prod_oil_mensual']);
+    Route::post('/produccion-gas-mensual', [GraficoController::class, 'prod_gas_mensual']);
+  
 
 });

@@ -25,12 +25,13 @@ class CreateDjjsTable extends Migration
             $table->double('iny_agua',10,2);
             $table->double('iny_co',10,2);
             $table->double('iny_otro',10,2);
-            $table->double('tef' ,10,2);//dias
+            $table->double('tef' ,10,2)->nullable();//dias
             $table->double('v_util',10,2); //vida util
-            $table->string('pist',4); // Codigo Tipo Extracion
-            $table->string('arap',4); //codigo estado pozo
-            $table->string('pet',4); //Tipo pozo    
-            $table->timestamps();
+            $table->foreignId('well_state_id'); //codigo estado pozo
+            $table->string('pist',10); // Codigo Tipo Extracion
+            $table->string('pet',10); //Tipo pozo    
+            $table->string('obs',255)->nullable(); 
+            $table->timestamps(); 
         });
     }
 

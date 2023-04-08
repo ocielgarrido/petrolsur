@@ -31,8 +31,7 @@ use App\Models\Yacimiento;
             $this->reset('well');
         }
     
-        public function updateWell()
-        {
+        public function updateWell() {
             $this->resetErrorBag();
            $this->validate();
     
@@ -53,7 +52,6 @@ use App\Models\Yacimiento;
                     "perfo_fin" => $this->well->perfo_fin,
                     "termi_ini" => $this->well->termi_ini,
                     "termi_fin" => $this->well->termi_fin,
-                    "well_state_id"  => $this->well->well_state_id,
                     "cota" => $this->well->cota,
                     "prod_oil_dic" => $this->well->prod_oil_dic,
                     "prod_gas_dic" => $this->well->prod_gas_dic,
@@ -64,12 +62,15 @@ use App\Models\Yacimiento;
                     "iny_otr_dic" => $this->well->iny_otr_dic,
                     "vida_util_dic" => $this->well->vida_util_dic,
                     "abandono" => $this->well->abandono,
-                    "tipo" => $this->well->tipo,
-                    "capacidad" => $this->well->capacidad,
+                     "capacidad" => $this->well->capacidad,
                     "idpozo" => $this->well->idpozo,
-                    'arap' => $this->well->arap,
+                    "well_state_id"  => $this->well->well_state_id, //Estado pozo arap
+                    "pet" => $this->well->pet, // Tipo Pozoo petroleo, Gas, etc
+                    'pist' => $this->well->pist, //   Tipo Extracion
                     "updated_at" =>now(),
-            
+
+ 
+       
                
                 ]);
     
@@ -133,7 +134,6 @@ use App\Models\Yacimiento;
                 'well.perfo_fin' => 'nullable',
                 'well.termi_ini' => 'nullable',
                 'well.termi_fin' => 'nullable',
-                'well.well_state_id' => 'required',
                 'well.cota' => 'required',
                 'well.idpozo' =>'required',
                 'well.prod_oil_dic' => 'required',
@@ -145,10 +145,11 @@ use App\Models\Yacimiento;
                 'well.iny_otr_dic' => 'required',
                 'well.vida_util_dic' => 'required',
                 'well.abandono' => 'nullable',
-                'well.tipo' => 'required',
                 'well.capacidad' => 'required',
-                'well.arap' => 'required',
-        
+                'well.well_state_id' => 'required',
+                'well.pet' => 'required',
+                'well.pist' => 'required',
+       
 
       
             ], $rules);

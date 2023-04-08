@@ -33,7 +33,7 @@
                 Swal.fire(e.detail);
             });
         </script>
- 
+        @stack('styles')
         <!-- Scripts -->
         <script defer src="{{ asset('vendor/alpine.js') }}"></script>
     </head>
@@ -84,11 +84,11 @@
         <script src="{{ asset('stisla/js/scripts.js') }}"></script>
 
        @livewireScripts
-       @stack('js')
-        <script src="{{ mix('js/app.js') }}" defer></script>
+       @stack('js')       
 
         @isset($script)
             {{ $script }}
         @endisset
+        <script src="{{ mix('js/app.js') }}" defer></script>
     </body>
 </html>
