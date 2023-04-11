@@ -40,4 +40,12 @@ class Calculo extends Model
         'fecha' => 'datetime:d-m-Y',
         'dia' => 'datetime:d-m-Y',
     ];
+
+    public function welll(){
+        return $this->hasOne("App\Models\well");
+    }
+    public function well_state() {
+        return $this->belongsTo(WellState::class);
+    }
+
 }

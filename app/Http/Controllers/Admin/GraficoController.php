@@ -27,7 +27,7 @@ class GraficoController extends Controller
 
     public function prod_gas_mensual(Request $request){
         $data= Informem::select(
-          DB::raw('sum(gas) as gas'),
+          DB::raw('sum(pm316) as gas'),
           DB::raw("DATE_FORMAT(fecha,'%m-%Y') as meses"),
        )
           ->groupBy('meses')

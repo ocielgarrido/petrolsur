@@ -27,7 +27,7 @@ class CreateDjjsTable extends Migration
             $table->double('iny_otro',10,2);
             $table->double('tef' ,10,2)->nullable();//dias
             $table->double('v_util',10,2); //vida util
-            $table->foreignId('well_state_id'); //codigo estado pozo
+            $table->string('well_state_id',10); //codigo estado pozo
             $table->string('pist',10); // Codigo Tipo Extracion
             $table->string('pet',10); //Tipo pozo    
             $table->string('obs',255)->nullable(); 

@@ -11,13 +11,18 @@ class Informem extends Model
     protected $fillable = [
         'area_id',
         'fecha',
-        'prod_bruta',
+        'oilB',
         'oilH',
         'oilD',
-        'gas',
+        'pm10',
+        'pm316',
+        'a9300',
+        'cgas', //consumo gas= pm10-pm316
+        'tgas', // total gas= consumo+pm316
         'agua',
         'ventas_oil',
         'gasolina',
+        'fileCapIV',
         'estado',
 
     ];

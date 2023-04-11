@@ -8,7 +8,10 @@
             {{ __('Complete todos los campos') }}
         </x-slot>  
            
-        <x-slot name="form">          
+        <x-slot name="form">   
+            @include('common.alerts');
+            @include('common.messages');
+               
             <div class="form-group col-span-6 sm:col-6 grid grid-cols-1 md:grid-cols-2 gap-5">
                 <div class="mx-2"> 
                      <x-jet-label for="area_id" value="{{ __('Area:') }}" />               

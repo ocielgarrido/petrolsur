@@ -165,7 +165,9 @@ class ReportController extends Controller
                 $dataOILH = Oil::select('prod_oil_h')->whereBetween('fecha', [$fechaDesde, $fechaHasta])->get()->sum('prod_oil_h');
                 $dataOILD = Oil::select('prod_oil_d')->whereBetween('fecha', [$fechaDesde, $fechaHasta])->get()->sum('prod_oil_d');
                 $dataAGUA = Oil::select('prod_agua')->whereBetween('fecha', [$fechaDesde, $fechaHasta])->get()->sum('prod_agua');
-                $dataGAS = Gasse::select('a9300')->whereBetween('fecha', [$fechaDesde, $fechaHasta])->get()->sum('a9300');
+                $dataGASpm10 = Gasse::select('pm10')->whereBetween('fecha', [$fechaDesde, $fechaHasta])->get()->sum('pm10');
+                $dataGASpm316 = Gasse::select('pm316')->whereBetween('fecha', [$fechaDesde, $fechaHasta])->get()->sum('pm316');
+                $dataGAS9300 = Gasse::select('a9300')->whereBetween('fecha', [$fechaDesde, $fechaHasta])->get()->sum('a9300');
                 $dataSALE = Sale::select('total')->whereBetween('fecha', [$fechaDesde, $fechaHasta])->get()->sum('total');
                 $dataGASO = Movement::select('volumen')->whereBetween('fecha', [$fechaDesde, $fechaHasta], )->where(['tipo'=>'mov_ext', 'tdestino'=>'T', 'area_id' =>1,'product_id' =>3])->get()->sum('volumen');
                 $datosprod=array(
@@ -177,8 +179,11 @@ class ReportController extends Controller
                     'prod_oilDDia'=>round($dataOILD/$dias,2),
                     'prod_agua'=>round(($dataAGUA),2),
                     'prod_aguaDia'=>round(($dataAGUA)/$dias,2),
-                    'prod_gas'=>round($dataGAS,2),
-                    'prod_gasDia'=>round($dataGAS/$dias,0),
+                    'gaspm10'=>round($dataGASpm10,2),
+                    'gaspm316'=>round($dataGASpm316,2),
+                    'gas9300'=>round($dataGAS9300,2),
+                    'consumo'=>round($dataGASpm10,2) -round($dataGASpm316,2),
+                    'prod_gasDia'=>round($dataGAS9300/$dias,0),
                     'ventas'=>round($dataSALE,2),
                     'gasolina'=>round($dataGASO,2),
                     'dias' => $dias,
@@ -195,7 +200,7 @@ class ReportController extends Controller
                 return $pdf->stream('Parte_Produccion_Mensual.pdf'); 
                 break;
 
-             case('3'):
+            case('3'):
                 $title="Controles de Pozo";
                 $desde= (new DateTime($fechaFrom))->format('Y-m-d');
                 $hasta= (new DateTime($fechaTo))->format('Y-m-d');
@@ -246,10 +251,14 @@ class ReportController extends Controller
        $results=array(
         'area_id' => 1,
         'fecha' =>$data['fecha'],
-        'prod_bruta' =>$data['prod_bruta'],
+        'oilB' =>$data['prod_bruta'],
         'oilH' =>$data['prod_oil'],
         'oilD' =>$data['prod_oilD'],
-        'gas' =>$data['prod_gas'],
+        'pm10' =>$data['gaspm10'],
+        'pm316' =>$data['gaspm316'],
+        'a9300' =>$data['gas9300'],
+        'cgas' =>$data['consumo'],
+        'tgas' =>$data['consumo']+$data['gaspm316'],
         'agua' =>$data['prod_agua'],
         'ventas_oil' =>$data['ventas'],
         'gasolina' =>$data['gasolina'],
@@ -263,15 +272,20 @@ class ReportController extends Controller
         Informem::insert($results);
        }else{
         $dI =Informem::where(['fecha'=> $data['fecha'], 'area_id'=>1])->first();
+        
         Informem::query()
         ->where('id', $dI->id)           
         ->update([
             'area_id' => 1,
             'fecha' =>$data['fecha'],
-            'prod_bruta' =>$data['prod_bruta'],
+            'oilB' =>$data['prod_bruta'],
             'oilH' =>$data['prod_oil'],
             'oilD' =>$data['prod_oilD'],
-            'gas' =>$data['prod_gas'],
+            'pm10' =>$data['gaspm10'],
+            'pm316' =>$data['gaspm316'],
+            'a9300' =>$data['gas9300'],
+            'cgas' =>$data['consumo'],
+            'tgas' =>$data['consumo']+$data['gaspm316'],
             'agua' =>$data['prod_agua'],
             'ventas_oil' =>$data['ventas'],
             'gasolina' =>$data['gasolina'],

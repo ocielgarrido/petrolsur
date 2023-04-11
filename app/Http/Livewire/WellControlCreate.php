@@ -58,7 +58,17 @@ class WellControlCreate extends Component
     public function createWellControl(){
         $this->resetErrorBag();
         $this->validate(); 
-   //     WellControl::create($this->wellcontrol);    
+        // Valido tipo pozo y dato ingresado
+        $tipoPozo=Well::select('pet')->where(['id' => $this->wellcontrol->well_id])->first();
+        if($tipoPozo->pet =="PET" && $this->wellcontrol->prod_bruta_mt3==0){
+            session()->flash('msg-error','Favor verifique datos');
+            return;
+        }
+        if($tipoPozo->pet =="GAS" && $this->wellcontrol->gas_neto_mt3==0){
+            session()->flash('msg-error','Favor verifique datos');
+            return;            
+        }
+
         $brutamt3=round($this->wellcontrol->prod_bruta_mt3,2);
         $aguamt3=round(($brutamt3*$this->wellcontrol->agua_emul_por/100),2);
         $oilmt3=round(($brutamt3-$aguamt3),2);
@@ -109,6 +119,16 @@ class WellControlCreate extends Component
     public function updateWellControl() {
         $this->resetErrorBag();
         $this->validate();
+        $tipoPozo=Well::select('pet')->where(['id' => $this->wellcontrol->well_id])->first();
+        if($tipoPozo->pet =="PET" && $this->wellcontrol->prod_bruta_mt3==0){
+            session()->flash('msg-error','Favor verifique datos');
+            return;
+        }
+        if($tipoPozo->pet =="GAS" && $this->wellcontrol->gas_neto_mt3==0){
+            session()->flash('msg-error','Favor verifique datos');
+            return;            
+        }
+
         $brutamt3=round($this->wellcontrol->prod_bruta_mt3,2);
         $aguamt3=round(($brutamt3*$this->wellcontrol->agua_emul_por/100),2);
         $oilmt3=round(($brutamt3-$aguamt3),2);

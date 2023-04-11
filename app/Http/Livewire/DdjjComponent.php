@@ -12,7 +12,10 @@ use App\Models\Gasse;
 
 use App\Models\WellDownTime;
 use App\Models\Djj;
+use App\Models\WellState;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\File;
 use DateTime;
 use DatePeriod;
 use DateInterval;
@@ -23,9 +26,15 @@ class DdjjComponent extends Component
     public $hasta;    
     public $tipo;
     public $area_id;
-
+    
     public $ddjj;    
     public $calculo=[];
+
+    //Datos a Devolver
+    public $datosF;
+    public $gas=0;
+    public $informe;
+    public $totales;
 
     protected function getRules(){ 
 
@@ -42,8 +51,29 @@ class DdjjComponent extends Component
         ], $rules);
 
     } 
+
+
     public function mount (){
       $this->area_id=1;
+      $this->gas=0;
+
+    }
+
+    public function render(){
+      if($this->gas==1){   
+            
+        $this->datosF=djj::select('*')->get();
+        return view('livewire.ddjj-component',[
+            'datos' => $this->datosF,
+            'informe' =>$this->informe,
+            'totales' => $this->totales
+                           
+        ]);
+      }else{
+        return view('livewire.ddjj-component');
+
+      } 
+     
     }
 
 
@@ -54,12 +84,20 @@ class DdjjComponent extends Component
       switch ($this->tipo) {       
         case '1':
           //Capitulo IV TXT
-          DB::table('calculos')->delete();
-        //  DB::table('djjs')->delete();
-        //  $this->calcularGas($this->desde,$this->hasta);
-         // DB::table('calculos')->delete();
-          $this->calcularOil($this->desde,$this->hasta);     
-          break;
+          
+           $result=$this->verificarInforme($this->desde);
+          //primero verifico si está informe creado, de ser así continuo
+          if($result==true){
+            DB::table('calculos')->delete();
+            DB::table('djjs')->delete();
+            $this->calcularGas($this->desde,$this->hasta);
+        //    DB::table('calculos')->delete();
+       //     $this->calcularOil($this->desde,$this->hasta); 
+       //     $this->escribirTxt($this->desde);
+          }else{
+            session()->flash('msg-error','No existe informe Mensual, debe generar antes de seguir!!');
+          } 
+           break;
         case '2':
           //Regalias
           break;
@@ -69,8 +107,63 @@ class DdjjComponent extends Component
     
       }
     }
+    //Función que genera el txt
+    public function escribirTxt($desde){
+      $periodo=date_create($desde);         
+      $filename=$periodo->format('Y-m');     
+      $fecha=$periodo->format('Y-m-d');  
 
-      public function calcularGas($desde, $hasta){
+      $contents=Djj::all();
+      $informe=Informem::where(['fecha' =>$fecha])->first(); 
+      $filename= Storage::disk('ddjj')->path('CIV\\' .$informe->fileCapIV);  //Ubicacion del txt  
+      
+      if(!File::exists($filename)){
+        $filename=$periodo->format('Y-m');
+        Storage::disk('ddjj')->put('CIV/CAP_IV_PetrolSur_' . $filename .  '.txt','');
+        $filename= Storage::disk('ddjj')->path('CIV\\' .$informe->fileCapIV);  //Ubicacion del txt  
+
+      }
+      $count=djj::count();
+      $file = fopen($filename, "w");
+      foreach($contents as $c) {
+        $linea=$c->idpozo .';' . round($c->prod_pet,2) .';' . round($c->prod_gas,2) .';0.00;0.00;0.00;0.00;0.00;' . round($c->v_util,2) . $c->pist . ';' . $c->well_state_id . ';' . $c->pet. ';';       
+        fwrite($file, $linea . PHP_EOL);
+      }
+      fclose($file);
+      // $i=0;
+      //  while($i <= $count){
+      //    $linea=$c->idpozo .';' . round($c->prod_pet,2) .';' . round($c->prod_gas,2) .';0.00;0.00;0.00;0.00;0.00;' . round($c->v_util,2) . $c->pist . ';' . $c->well_state_id . ';' . $c->pet. ';';       
+      //    fwrite($file, $linea . PHP_EOL);
+      //     $i++;
+      //  }
+        
+
+
+    }
+
+    //Función que verifica que informe mensual existe    
+    public function verificarInforme($desde){
+      $periodo=date_create($desde);         
+      $filename=$periodo->format('Y-m');     
+       $fecha=$periodo->format('Y-m-d');  
+     
+      $count=Informem::where(['fecha' => $fecha])->count();
+      if($count==1){
+        Storage::disk('ddjj')->put('CIV/CAP_IV_PetrolSur_' . $filename .  '.txt', 'Contents');
+        Informem::query()
+        ->where('fecha',$fecha)           
+        ->update([
+            'fileCapIV'=> 'CAP_IV_PetrolSur_' . $filename .  '.txt',
+          ]);
+        return true; 
+      }else{
+       
+        return false;
+      }
+    } 
+
+    //Funcion que calcula Gas a informar
+    public function calcularGas($desde, $hasta){
         //Obtengo pozos activos de gas
         $pozos =Well::select('*')->where(['pet'=>'GAS','well_state_id' =>8 ])->orderBy('id')->get();
         //convierto fechas calendario para consultas y mostrar  
@@ -82,13 +175,11 @@ class DdjjComponent extends Component
         $fechaFin=strtotime($hasta);
         //Aca obtengo total ventas gas a Tgs
         //Consumo Celda J44 es diferencia de ambos calculos posteriores (pm10-pm316)
-        $totalpm316=Gasse::whereBetween('fecha', [$primerDia, $ultimoDia])->sum('pm316'); //Aca obtengo total ventas gas a Tgs Celda J43 vta std tgs
-        $totalpm10=Gasse::whereBetween('fecha', [$primerDia, $ultimoDia])->sum('pm10'); //Aca obtengo total ventas gas a Tgs Celda J44 consumo
-        $consumo=$totalpm10-$totalpm316; //Celda J45 total    
-        $totalGas=$consumo+$totalpm316; //Celda J45 total      
-        $totalGral=0; //total gral corresponde a valor celda D39
-
+        $infoMensual=Informem::select('*')->where(['fecha' => $primerDia])->first();         
+       
+       
         //recorro cada pozo gas dia a dia
+        $totalGral=0;
         foreach($pozos as $p){          
           $total=0; //corresponde a celda a celda b35 lo que sumand todas las B
             for($i=$fechaInicio; $i<=$fechaFin; $i+=86400){
@@ -97,7 +188,8 @@ class DdjjComponent extends Component
               $dias=$dias +1;
               //de aca saco valores columna  D y E de excel
               $m3Control=$this->buscaControl(date("Y-m-d", $i), $p->id); //si no encuentro control del día, me devuelve datos control proximo anterior
-          
+              $diasParada=$this->buscaParada(date("Y-m-d", $i), $p->id);
+
               // $total=$total+$m3Control;
               $total=$total+$m3Control->gas_neto_mt3;           
                 $result=[ 
@@ -111,120 +203,117 @@ class DdjjComponent extends Component
                   'cc'=>0,
                   'cd'=>0,                
                   'ce'=>$m3Control->agua_neto_24, //celda e1
-                  'totalM' => $total, //celda b35
-                  'totalG' => $totalGral+$totalGral+$total,
+                  'totalM' => $total, //celda b35 total mes a ajustar
                   'dias' =>$dias,
-                  'v_util'=> $this->buscaParada(date("Y-m-d", $i), $p->id),
+                  'tef'=> $diasParada /24,
+                  'totalG' => $totalGral+$totalGral+$total, //total controles pozo
+                  'totalR' =>$infoMensual->tgas, // total al cual debo llegar
+                  'porce'  => 0, //porcentaje 
+                  'cbA'    =>0,  // Al cual debo llegar que será el total
+                  'id_control' => $m3Control->id
                   
                   ];             
                   $calculo[]=$result;
-            }            
+
+            }   //termina un mes de un pozo      
             $totalGral=$totalGral+$total;
-          
-        }
-       
-        //Acá termine recorrer pozo por pozo dia por día
-        //Acá guardo datos Parciales
-        Calculo::insert($calculo);
-        //actualizo todos los registro de tabla cacluloscampo totalG con $totalGral
+            
+        } //teminalos pozos
+        
+        Calculo::insert($calculo); 
         Calculo::select('*')->update(['totalG'=>$totalGral,]); 
-        //Calculo totales para completar resto campos (me sirve en cierta forma)
+       
+      $pozos=Calculo::where(['fecha' =>$ultimoDia])->get();
+      foreach($pozos as $p){          
+        $porce=round($p->totalM*100/$p->totalG,2);
+        $cbA=$p->totalR*$porce/100;
+        Calculo::where(['well_id' =>$p->well_id])->update(['porce'=>$porce,]); 
+        Calculo::where(['well_id' =>$p->well_id])->update(['cbA'=>$cbA,]);    
+        Calculo::where(['well_id' =>$p->well_id])->update(['totalM'=>$p->totalM,]);    
+         
+      }
+      //calculo ajustes controles
+      foreach($pozos as $p){  
+        
+        $porce=round($p->cb*100/$p->totalM,2);
+        $ajuste=$p->cbA*$porce/100;
+       // $this->ajustarControlGas($p->id,$ajuste);
+        for($i=$fechaInicio; $i<=$fechaFin; $i+=86400){   
+          Calculo::where(['id' =>$p->id])->update(['porce_diario'=>$porce,]); 
+          Calculo::where(['id' =>$p->id])->update(['ajuste_gas'=>$ajuste,]);  
+        
+        } 
+    }
+
+      //Calculo totales para completar resto campos (me sirve en cierta forma)
           $data= Calculo::select(
             DB::raw('sum(calculos.ce) as tAgua'),
-            DB::raw('sum(calculos.cb) as tgas'),
+            DB::raw('avg(calculos.cbA) as tgas'),
             DB::raw("calculos.well_id"),
             )
           ->groupBy('calculos.well_id')
           ->orderBy('calculos.well_id')
           ->get(); 
+        dd($data);  
+        $porcePorpozo=[];  
           
-          $porcePorpozo=[];  
-            
         foreach($data as $d){                    
-          //acá obtendo co d->tgas valor celda b35  de cada pozo        
-          $porceWell=$d->tgas*100/$totalGral; //Acá obtengo porcentaje por pozo celda b36
+          //acá obtendo co d->tgas valor celda b35  de cada pozo  
+          $totalB=Calculo::sum('cb');         
+          $porceWell=$d->tgas*100/$totalB; //Acá obtengo porcentaje por pozo celda b36
           $pozo=$d['well_id']; //tengo id pozo
+          $sumaB=Calculo::where(['well_id'=>$pozo])->sum('cb'); 
+          $sumaE=Calculo::where(['well_id'=>$pozo])->sum('ce');
+          $tef=Calculo::where(['well_id'=>$pozo])->sum('tef');               
           $result=[
             'well_id' =>$pozo,
-            'porce_well' => $porceWell, //celda b36
-            'consumo' => $totalpm10-$totalpm316,
-            'vta_std' =>$totalpm316,
-            'total_gas' => $totalpm316+$consumo, //celda j45
-            'total35' =>  ($totalpm316+$consumo)*$porceWell/100, //sumatoria celda b35
-            
-            
-          ];
+            'porce_well' => round($porceWell,2), //celda b36
+            'consumo' => $infoMensual->cgas,
+            'vta_std' => $infoMensual->pm316,
+            'total_gas' =>  $infoMensual->tgas, //celda j45
+            'sumab' =>$sumaB,
+            'total35' => round(( ($infoMensual->pm316+$infoMensual->cgas)*$porceWell/100),2), //sumatoria celda b35
+            'prod_real' => $totalB,
+            'agua_declara' => $sumaE,
+            'tef' =>$tef           
+          ];          
           //acá obtengo porcentaje final de cada pozo
-          $porcePorpozo[]=$result;      
-          $this->finCalculosGas($totalGas,$porcePorpozo, $ultimoDia,$dias,$consumo);
-        }        
-      }
-    
-      private function finCalculosGas($totalGas, $porcePorpozo, $ultimoDia, $dias,$consumo){
-      
-            //ahora relleno resto celdas tabla
-            foreach($porcePorpozo as $p){ 
-              //aca empieza un pozo
-              $results=Calculo::select('*')->where(['well_id' => $p['well_id']])->orderBy('fecha', 'asc')->get();
-              $totalPozo=Calculo::select('*')->where(['well_id' => $p['well_id']])->where(['fecha' =>$ultimoDia])->first();
-             
-              $prodReal=Calculo::select(
-                DB::raw('sum(calculos.totalM) as prod_real'),         
-                DB::raw("calculos.fecha"),
-                )
-                ->where('calculos.fecha','=', $ultimoDia)
-                ->groupBy('calculos.fecha')
-                ->first();  
-                //con esto calculo celda B36 % 
-                $porcePorPozo= floatval($totalPozo->totalM)/floatval($prodReal->prod_real)*100; 
-                //con esto calculo celda D36 o B37 % que es produccion gas
-                $prodGaspozo=$totalGas*$porcePorPozo/100; 
-               
-              
-              foreach($results as $r){
-              //acá empieza un día de un pozo
-                
-                Calculo::query()
-                ->where('well_id', $p['well_id'])           
-                ->update([
-                    "cc" => floatval($r['cb']) *100/ floatval($totalPozo->totalM),
-                    "cd" =>(floatval($r['cc']))*$prodGaspozo /100,
-                ]);
-              }  
-              
-            }
-            $prodGas=Calculo::where(['well_id' => $p['well_id']])->sum('cd');
-            $prodAgua=Calculo::where(['well_id' => $p['well_id']])->sum('ce');
-            $vidaUtil=Calculo::where(['well_id' => $p['well_id']])->sum('v_util');
-            $datosWell=Well::where(['id' => $p['well_id']])->first();
-      
-            $resultFinal=[
-              'area_id' =>1,
-              'well_id' =>$p['well_id'],
-              'pozo' => $totalPozo->pozo, // nombre pozo
-              'idpozo' => $datosWell->idpozo, //idpozo ddjj
-              'prod_pet' => 0, //producciion petroleo
-              'prod_gas' =>$prodGaspozo ,// produccion gas =sumatoria campo mt3gas_declara tabla calculos por pozo
-              'prod_agua' => $prodAgua,
-              'iny_agua' =>0,
-              'iny_co' =>0,
-              'iny_otro' =>0,
-              'v_util'=>$dias-$vidaUtil,
-              'pist' => 'GS', //Tipo Extraxion Gas Lift por ejemplo
-              'pet'=>$datosWell->pet,
-              'well_state_id' =>$datosWell->well_state_id
-       
-            ];
-          
-            
-            //Acá termina un pozo
-            Djj::insert($resultFinal);
-      }      
- 
-      public function calcularOil($desde, $hasta){
+          $porcePorpozo[]=$result;
+         // $this->finCalculosGas($infoMensual->tgas,$porcePorpozo);
+        } 
+        //Ahora lleno tabla que generará txt 
+        foreach($porcePorpozo as $p){ 
+          $datosWell=Well::where(['id'=>$p['well_id']])->first();
+          $arap=WellState::where(['id' => $datosWell->well_state_id])->first();
+
+          $resultFinal=[
+            'area_id' =>1,
+            'well_id' =>$p['well_id'],
+            'pozo' => $datosWell->pozo, // nombre pozo
+            'idpozo' => $datosWell->idpozo, //idpozo ddjj
+            'prod_pet' => 0, //producciion petroleo
+            'prod_gas' =>$p['total35'] ,// produccion gas =sumatoria campo mt3gas_declara tabla calculos por pozo
+            'prod_agua' => $p['agua_declara'],
+            'iny_agua' =>0,
+            'iny_co' =>0,
+            'iny_otro' =>0,
+            'v_util'=>$dias-$p['tef'],
+            'pist' => 'GS', //Tipo Extraxion Gas Lift por ejemplo
+            'pet'=>$datosWell->pet,
+            'well_state_id' =>$arap->codigo     
+          ];
+          Djj::insert($resultFinal);
+        }
+
+        
+    }
+     
+    //Funcion que calcula Oil Deshidratado a informar
+    public function calcularOil($desde, $hasta){
+        DB::table('calculos')->delete();
         $pozos =Well::select('*')->where(['pet'=>'PET','well_state_id' =>8 ])->orderBy('id')->get();
         $primerDia=date_create($desde); 
-      
+       
         //fechas para consultas  
         $primerDia=$primerDia->format('Y-m-d');
         $ultimoDia=date("Y-m-t", strtotime($primerDia)); 
@@ -243,9 +332,9 @@ class DdjjComponent extends Component
         //Todal el agua a llegar para que coincida con informe mensual es el siguiente
         $aguaAllegarOil=$infoMensual->agua-$totalAguaGas;
         
-        $totalGral=0;
+        
         foreach($pozos as $p){     
-          //recorro cada pozo gas dia a dia
+          //recorro cada pozo oil dia a dia
           $total=0; //corresponde a celda a celda b35 lo que sumand todas las B
           for($i=$fechaInicio; $i<=$fechaFin; $i+=86400){
             //86400 es el número de segundos que tiene 1 día
@@ -253,149 +342,192 @@ class DdjjComponent extends Component
             $dias=$dias +1;
             //de aca saco valores columna  D y E de excel
             $m3Control=$this->buscaControl(date("Y-m-d", $i), $p->id); //si no encuentro control del día, me devuelve datos control proximo anterior
-          // $total=$total+$m3Control;
+            $diasParada=$this->buscaParada(date("Y-m-d", $i), $p->id);
+
+            // $total=$total+$m3Control;
             $total=$total+$m3Control->prod_bruta_mt3;           
               $result=[ 
-                //Campos para gas
+                //Campos para Oil
                 'yacimiento_id' =>$p->yacimiento_id,
                 'well_id' =>$p->id, 
                 'pozo' =>$p->pozo, 
                 'dia' =>date("Y-m-d", $i),
                 'fecha' => date("Y-m-d", $i),
-                'cb' =>floatval($m3Control->prod_bruta_mt3), 
+                'cb' =>floatval($m3Control->prod_bruta_24), 
                 'cc'=>floatval($m3Control->agua_emul_por),  
-                'cd'=>floatval($m3Control->prod_bruta_mt3-($m3Control->prod_bruta_mt3*$m3Control->agua_emul_por/100)),  
+                'cd'=>floatval($m3Control->oil_neto_mt3),  
                 'ce'=>floatval($m3Control->agua_neto_24), //celda e1
+                'cg' => 0 , //bruta a declarar 
+                'ch' => 0 , //neta a declarar 
                 'totalM' => $total, //celda b35
-                'totalG' => $totalGral+$total,
+                'totalM' => $total, //celda b35
+                'totalG' => 0,
                 'dias' =>$dias,
-                'v_util'=> $this->buscaParada(date("Y-m-d", $i), $p->id),
-                'pet' =>'PET'
-                
+                'tef'=> $diasParada /24,
+              
                 ];             
               
                 $calculo[]=$result;
-          } //termina un pozo todo el mes
-        
-        
-          $totalGral=$totalGral+$total;
-        }
-
+          } //termina un pozo todo el mes         
+          
+        } 
        
+        Calculo::insert($calculo);  
      
-        //Inserto los primeros calculos de todos los pozos y dias hasta columna e
-          Calculo::insert($calculo);  
-        
           //Acá Tengo B36 9.21 de cada pozo 
           $data=''; //contine totales columna b
           $data= Calculo::select(
-            DB::raw('sum(calculos.ce) as tAgua'),
-            DB::raw('sum(calculos.cb) as tBruta'),
-            DB::raw('sum(calculos.cc) as tporceAguas'),
-            DB::raw('sum(calculos.cd) as tNeta'),
+            DB::raw('sum(calculos.ce) as te'),
+            DB::raw('sum(calculos.cb) as tb'),
+            DB::raw('sum(calculos.cc) as tc'),
+            DB::raw('sum(calculos.cd) as td'),
             DB::raw("calculos.well_id"),
             )
-            ->groupBy('calculos.well_id')
-            ->orderBy('calculos.well_id')
-            ->get(); 
-          //estos son los 26.81 celda b44
-          $dataBruta=Calculo::select(
-            DB::raw('sum(calculos.cb) as tBruta'),
-          )->first();
-          
+          ->groupBy('calculos.well_id')
+          ->orderBy('calculos.well_id')
+          ->get(); 
+         
           //recorro totales cada pozo y saco calculos
-          $totalesParaCalculos=[];
+          $porcePorpozo=[];  
 
-          foreach($data as $d){
-          
-            $dataParaCalculos=[
-              'well_id' =>$d->well_id,
-              'b36' => $d->tBruta,
-              'b37' =>$d->tBruta*100/ $dataBruta->tBruta,
-              'b38' =>$infoMensual->prod_bruta*$d->tBruta/ $dataBruta->tBruta,
-              'b44' => $dataBruta->tBruta, //b44
-              'b55' =>$infoMensual->prod_bruta, //b55
-              'b58' =>  $totalAguaInfo, //total agua informe mensual 10.22
-              'b59' => $totalAguaGas, //Agua Gasiferos  7.75
-              'b60' =>$totalAguaInfo-$totalAguaGas, //a lo que tengo que llegar agua enero 10.22 - total agua Gas Enero=
+          foreach($data as $da){
+            $pozo=$da['well_id']; //tengo id pozo
+            $tef=Calculo::where(['well_id'=>$pozo])->sum('tef'); 
+            $tcpb=Calculo::sum('cb');  //total control pozo bruta 
+            $tcpn=Calculo::sum('cd');  //total control pozo neta 
+            $tcpa=Calculo::sum('ce');  //total control pozo agua 
+            $porJajuste=Well::select('porce_agua')->where(['id'=>$pozo])->first();
 
-      
+             $result=[
+              'well_id' =>$da->well_id,
+              'b34' => $da['tb'],
+              'b36' => round($infoMensual->oilb/100,2)*(round($da['tb']*100/$tcpb,2)),
+              'b33' => $da['tb'],
+              'd36' => $da['td'],
+              'c36' => $da['tc'],    
+              'e36' => $da['te'],
+              'tef' => $tef,
+              'tcpb'=>$tcpb,
+              'tcpn'=>$tcpn,
+              'tcpa'=>$tcpa,
+              '%pozo'=>round($da['tb']*100/$tcpb,2),
+              'tbm' =>$infoMensual->oilb, //total bruta mes
+              'oilhm' =>$infoMensual->oilH, //total oilH mes
+              'oildm' =>$infoMensual->oilD, //total oilD mes
+              'aguam' =>$infoMensual->agua, //total agua mes
+              'tagas' =>$totalAguaGas, //Total agua calculada con gasiferos
+              'taguap'=> $infoMensual->agua - $totalAguaGas, // agua a la que debemos llegar
+              'tbw' =>round($infoMensual->oilb/(round($da['tb']*100/$tcpb,2)),2), //total bruta pozo
+              '%ajuste' => $porJajuste->porce_agua, //porcentaje ajuste agua del pozo
+              'mtagua' => ($infoMensual->agua - $totalAguaGas)*($porJajuste->porce_agua/100) //agua a informar
+
+ 
             ];
-            $totalesParaCalculos[]=$dataParaCalculos;
+
+            $porcePorpozo[]=$result;  
+
           }
-          foreach($totalesParaCalculos as $c){
+         
+          foreach($porcePorpozo as $p){
+             $pozo=Well::where(['id' => $p['well_id']])->first();
+              $resultFinal=[
+                'area_id' =>1,
+                'well_id' =>$p['well_id'],
+                'pozo' => $pozo->pozo, // nombre pozo
+                'idpozo' => $pozo->idpozo, //idpozo ddjj
+                'prod_pet' => $p['%ajuste'] *$p['oildm'], //producciion petroleo
+                'prod_gas' =>0 ,// produccion gas =sumatoria campo mt3gas_declara tabla calculos por pozo
+                'prod_agua' => $p['mtagua'],
+                'iny_agua' =>0,
+                'iny_co' =>0,
+                'iny_otro' =>0,
+                'v_util'=>0,
+                'pist' => 'GS', //Tipo Extraxion Gas Lift por ejemplo
+                'pet'=>$pozo->pet,
+                'well_state_id' =>$pozo->well_state->codigo
+              ];
+              Djj::insert($resultFinal);
+          }
+        //INSERTO resto pozos que no están en produccion
+        $pozos =Well::select('*')->where('well_state_id', '<>', 8 )->orderBy('id')->get();
+        foreach ($pozos as $p){
+           $result=[
+            'area_id' =>1,
+            'well_id' =>$p->id,
+            'pozo' => $p->pozo, // nombre pozo
+            'idpozo' => $p->idpozo, //idpozo ddjj
+            'prod_pet' => 0, //producciion petroleo
+            'prod_gas' =>0 ,// produccion gas =sumatoria campo mt3gas_declara tabla calculos por pozo
+            'prod_agua' => 0,
+            'iny_agua' =>0,
+            'iny_co' =>0,
+            'iny_otro' =>0,
+            'v_util'=>0,
+            'pist' => 'GS', //Tipo Extraxion Gas Lift por ejemplo
+            'pet'=>$p->pet,
+            'well_state_id' =>$p->well_state->codigo   
+
+
+           ];
           
-            $dataUpdate=Calculo::select('*')->where(['well_id' => $c['well_id']])->orderby('fecha', 'asc')->get();
-            //recorro día por dia pozo por pozo
-              foreach($dataUpdate as $d){
-                $cg=floatval($c['b38']) * (floatval($d['cb'])*100/floatval($c['b36'])) /100 ;
-                Calculo::query()
-                ->where('well_id' , $c['well_id']) 
-                ->where('fecha','=', $d['fecha'] )          
-                ->update([                 
-                    "cf" => floatval($d['cb'])*100/floatval($c['b36']),      
-                    "cg" => $cg,      
-                ]); 
-            } 
-            //dd($aguaAllegarOil); b60
-            $dataUpdate=Calculo::select('*')->where(['well_id' => $c['well_id']])->orderby('fecha', 'asc')->get();
-            foreach($dataUpdate as $d){
-              //dd($d);
-              $totalG36=Calculo::where(['well_id' => $c['well_id']])->sum('cg');           
-              $porceAguaPozo=Well::select('porce_agua')->where(['id' => $c['well_id']])->value('porce_agua');
-              $ci= floatval($aguaAllegarOil)*floatval($porceAguaPozo)/100; //K47  
-              $l47=$ci*100/$totalG36;
-                      
-              Calculo::query()
-              ->where('well_id' , $c['well_id']) 
-              ->where('fecha','=', $d['fecha'] )          
-              ->update([   
-                  "ch" => floatval($d['cg'])-($ci*100/$totalG36)*floatval($d['cg']/100),            
-                  "ci" =>$l47,              
-                  "cj" =>($ci*100/$totalG36)*floatval($d['cg'])/100
-              ]); 
-          } 
+           Djj::insert($result);
+          
+        }
+        $this->datosF=Djj::all();        
+        $this->informe=$infoMensual;
+        $this->totales= Djj::select(
+         DB::raw('sum(djjs.prod_pet) as toil'),
+         DB::raw('sum(djjs.prod_gas) as tgas'),
+         DB::raw('sum(djjs.prod_agua) as tagua'),
+         )   
+        ->get('toil','tgas', 'tagua'); 
+         $this->gas=1;        
+          
         
 
-       } 
-        //acá terminé de hacer todos los calculos ahora armar resumen
-      }
+    }
 
-      //Función que busca el control de pozo del día, si no lo hay, busca el proximo anterior
-      private function buscaControl($fecha, $idWell){
+    //Función que busca el control de pozo del día, si no lo hay, busca el proximo anterior
+    private function buscaControl($fecha, $idWell){
         //busco si hay un control con esa fecha y pozo
-        $count =WellControl::where(['fecha'=>$fecha, 'well_id'=>$idWell])->count();     
-
+        $count =WellControl::where(['fecha'=>$fecha, 'well_id'=>$idWell])->count();
         if ($count==1){
-          $result=WellControl::where(['fecha'=>$fecha, 'well_id'=>$idWell])->first();
-          //if($idWell==23 && $fecha=='2023-03-04'){
+          $result=WellControl::where(['fecha'=>$fecha, 'well_id'=>$idWell])->first();     
+          //if($idWell==17 && $fecha=='2023-03-27'){
+          //  $result=WellControl::where(['fecha'=>$fecha, 'well_id'=>$idWell])->first();  
           //  dd($result);
-         // }
+
+          //}    
           return $result;
         }else{
           $result=WellControl::where('fecha','<',$fecha)->where('well_id','=', $idWell)->orderBy('fecha','desc')->first();
-          //if($idWell==24 && $fecha=='2023-03-01'){
-          //  dd($result);
-          //}
           return $result;
         } 
-      }
+    }
 
-      private function buscaParada($fecha, $idWell){
-        //busco si hay una parada esa fecha y pozo
+    private function buscaParada($fecha, $idWell){
+        //busco si hay una parada esa fecha y pozo y devuelve 
+        //cantidad de horas y las transforma a fracion de dias
         $count =WellDownTime::where(['fecha'=>$fecha, 'well_id'=>$idWell])->count();
       
         if ($count==1){
-          $result=1;
-          return $result;  
+          $result=WellDownTime::where(['fecha'=>$fecha, 'well_id'=>$idWell])->first(); 
+          return $result->horas;  
         }else{
           return 0;
         } 
-      }
-
-    public function render(){
-        return view('livewire.ddjj-component',[
-            'wells' => Well::all(),            
-        ]);   
     }
+
+    private function ajustarControlGas($id, $valor){
+      WellControl::query()
+      ->where('id', $id)           
+      ->update([
+          'gas_neto_mt3'=>$valor,
+          'estado' => 'Cerrado',
+
+      ]);
+
+    }
+
+  
 }

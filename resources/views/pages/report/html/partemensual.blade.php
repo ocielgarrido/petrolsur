@@ -85,9 +85,9 @@
                     <td class="text-right">{{floatval($datosprod['prod_oilDDia'])}} </td>
                 </tr>
                 <tr>
-                    <td>Ventas Gas </td>
-                    <td class="text-right">{{floatval($datosprod['prod_gas'])}} </td>
-                    <td class="text-right">{{floatval($datosprod['prod_gasDia'])}} </td>
+                    <td>Ventas Gas a9300</td>
+                    <td class="text-right">{{floatval($datosprod['gas9300'])}} </td>
+                    <td class="text-right">{{round(floatval($datosprod['gas9300'])/floatval($datosprod['dias']),0)}} </td>
                 </tr>
                 <tr>
                     <td>Agua</td>

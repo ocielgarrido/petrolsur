@@ -169,7 +169,7 @@
                 const data = {
                 labels: meses,
                 datasets: [{
-                    label: 'Producción Mensual de Gas',
+                    label: 'Producción Mensual de Gas PM-316',
                     backgroundColor: rgbValues,
                     borderColor:  rgbValues,
                     data: valores,
