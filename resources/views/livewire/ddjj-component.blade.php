@@ -144,7 +144,7 @@
                     <tbody>
                         <tr style=" border-top: solid 1px #df7e37;">
                             <td class="text-right">{{$informe->oilD}}</td>                                       
-                            <td class="text-right">{{$informe->tgas}}</td>
+                            <td class="text-right">{{round($informe->tgas/1000,2)}}</td>
                             <td class="text-right">{{$informe->agua}}</td>
                         </tr>
                     </tbody>

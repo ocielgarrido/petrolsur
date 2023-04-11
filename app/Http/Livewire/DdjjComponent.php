@@ -29,7 +29,7 @@ class DdjjComponent extends Component
     
     public $ddjj;    
     public $calculo=[];
-
+    public $calculado=[];
     //Datos a Devolver
     public $datosF;
     public $gas=0;
@@ -209,38 +209,38 @@ class DdjjComponent extends Component
                   'pozo' =>$p->pozo, 
                   'dia' =>date("Y-m-d", $i),
                   'fecha' => date("Y-m-d", $i),
-                  'cb' =>$controlP->gas_neto_mt3, //celda b1 a final mes
+                  'cb' =>round($controlP->gas_neto_mt3,2), //celda b1 a final mes
                   'cc'=>0,
                   'cd'=>0,                
-                  'ce'=>$controlP->agua_neto_24, //celda e1
+                  'ce'=>round($controlP->agua_neto_24,2), //celda e1
                   'totalM' => $total, //celda b35 total mes a ajustar
                   'dias' =>$dias,
                   'tef'=> $diasParada /24,
-                  'totalG' => $totalGral+$totalGral+$total, //total controles pozo
-                  'totalR' =>$this->informe->tgas, // total al cual debo llegar
+                  'totalG' =>round(($totalGral+$totalGral+$total),2), //total controles pozo
+                  'totalR' =>round($this->informe->tgas,2), // total al cual debo llegar
                   'porce'  => 0, //porcentaje 
                   'cbA'    =>0,  // Al cual debo llegar que será el total
                   'id_control' => $controlP->id
                   
                   ];             
                   $calculo[]=$result;
-
+             
             }   //termina un mes de un pozo      
             $totalGral=$totalGral+$total;
             
         } //teminalos pozos
-        
+      
         Calculo::insert($calculo); 
-        Calculo::select('*')->update(['totalG'=>$totalGral,]); 
+        Calculo::select('*')->update(['totalG'=>round($totalGral,2)]); 
        
       $pozos=Calculo::where(['fecha' =>$ultimoDia])->get();
       
       foreach($pozos as $p){          
         $porce=round($p->totalM*100/$p->totalG,2);
-        $cbA=$p->totalR*$porce/100;
-        Calculo::where(['well_id' =>$p->well_id])->update(['porce'=>$porce,]); 
-        Calculo::where(['well_id' =>$p->well_id])->update(['cbA'=>$cbA,]);    
-        Calculo::where(['well_id' =>$p->well_id])->update(['totalM'=>$p->totalM,]);    
+        $cbA=round($p->totalR*$porce/100);
+        Calculo::where(['well_id' =>$p->well_id])->update(['porce'=>round($porce,2),]); 
+        Calculo::where(['well_id' =>$p->well_id])->update(['cbA'=>round($cbA,2),]);    
+        Calculo::where(['well_id' =>$p->well_id])->update(['totalM'=>round($p->totalM,2),]);    
          
       }
       //calculo ajustes controles
@@ -248,12 +248,12 @@ class DdjjComponent extends Component
       foreach($pozos as $p){  
         
         $porce=round($p->cb*100/$p->totalM,2);
-        $ajuste=$p->cbA*$porce/100;
+        $ajuste=round($p->cbA*$porce/100,2);
        // $this->ajustarControlGas($p->id,$ajuste);
         for($i=$fechaInicio; $i<=$fechaFin; $i+=86400){  
 
-          Calculo::where(['id' =>$p->id])->update(['porce_diario'=>$porce,]); 
-          Calculo::where(['id' =>$p->id])->update(['ajuste_gas'=>$ajuste,]);  
+          Calculo::where(['id' =>$p->id])->update(['porce_diario'=>round($porce,2),]); 
+          Calculo::where(['id' =>$p->id])->update(['ajuste_gas'=>round($ajuste,2),]);  
         
         } 
       }
@@ -280,8 +280,8 @@ class DdjjComponent extends Component
             'pozo' => $datosWell->pozo, // nombre pozo
             'idpozo' => $datosWell->idpozo, //idpozo ddjj
             'prod_pet' => 0, //producciion petroleo
-            'prod_gas' =>$p->tGas ,// produccion gas 
-            'prod_agua' => $p->tAgua, //produccion agua
+            'prod_gas' =>round($p->tGas/1000,2) ,// produccion gas  en miles
+            'prod_agua' =>round($p->tAgua,2), //produccion agua
             'iny_agua' =>0,
             'iny_co' =>0,
             'iny_otro' =>0,
@@ -299,7 +299,8 @@ class DdjjComponent extends Component
     //Funcion que calcula Oil Deshidratado a informar
     public function calcularOil($desde, $hasta){
         DB::table('calculos')->delete();
-        $pozos =Well::select('*')->where(['pet'=>'PET','well_state_id' =>8 ])->orderBy('id')->get();
+      $pozos =Well::select('*')->where(['pet'=>'PET','well_state_id' =>8 ])->orderBy('id')->get();
+      //  $pozos =Well::select('*')->where(['pet'=>'PET','id' =>2])->orderBy('id')->get();
         $primerDia=date_create($desde); 
        
         //fechas para consultas  
@@ -312,8 +313,8 @@ class DdjjComponent extends Component
         //suma total agua pozos Gasiferos, por eso hay que calcular primero el gas
         $totalAguaGas=Djj::sum('prod_agua');               
         //Todal el agua a llegar para que coincida con informe mensual es el siguiente
-        $aguaAllegarOil=round($this->informe->agua-$totalAguaGas,2);
-        
+        $aguaAllegarOil=round($this->informe->agua-$totalAguaGas,2); //agua petroleros
+       
         //recorro cada pozo gas dia a dia
         $totalGral=0;
         foreach($pozos as $p){     
@@ -335,7 +336,7 @@ class DdjjComponent extends Component
                 'well_id' =>$p->id, 
                 'pozo' =>$p->pozo, 
                 'dia' =>date("Y-m-d", $i),
-                'fecha' => date("Y-m-d", $i),
+                'fecha' =>date("Y-m-d", $i),
                 'cb' =>round($controlP->prod_bruta_24,2), 
                 'cc'=>round($controlP->agua_emul_por,2),  
                 'cd'=>round($controlP->oil_neto_mt3,2),  
@@ -358,25 +359,45 @@ class DdjjComponent extends Component
           $totalCC = array_sum(array_column($calculo, 'cc'));
           $totalCD = array_sum(array_column($calculo, 'cd'));
           $totalCE = array_sum(array_column($calculo, 'ce'));
+          $resultC=[
+            'yacimiento_id' =>$calculo[0]['yacimiento_id'],
+            'well_id' =>$calculo[0]['well_id'], 
+            'pozo' =>$calculo[0]['pozo'],
+            'dia' =>$calculo[0]['dia'],
+            'cb' =>$totalCB, 
+            'cc'=>$totalCC,  
+            'cd'=>$totalCD,  
+            'ce'=>$totalCE, //celda e1
+            'cg' => 0 , //bruta a declarar 
+            'ch' => 0 , //neta a declarar 
+            'totalM' =>0, // $total, //celda b35
+            'totalG' => $calculo[0]['totalG'],
+            'totalR' =>$calculo[0]['totalR'], // total al cual debo llegar
+            'dias' =>$calculo[0]['dias'],
+            'tef'=> $calculo[0]['tef'],
+            'id_control' =>  $calculo[0]['id_control'],
+
+          ]; 
+          $calculado[]=$resultC;
           
-          $key = "tcb";
+          /* $key = "tcb";
           $value = $totalCB;
           $calculo[$key] = $value;
-          dd($calculo);
+          dd($calculo); */
          
           $totalGral=$totalGral+$total;
         } 
-      
+        
         Calculo::insert($calculo); 
-        Calculo::select('*')->update(['totalG'=>$totalGral,]); 
+        Calculo::select('*')->update(['totalG'=>round($totalGral,2),]); 
         $pozos=Calculo::where(['fecha' =>$ultimoDia])->get();
       
         foreach($pozos as $p){          
             $porce=round($p->totalM*100/$p->totalG,2);
-            $cbA=$this->informe->oilB*$porce/100;
-            Calculo::where(['well_id' =>$p->well_id])->update(['porce'=>$porce,]); 
-            Calculo::where(['well_id' =>$p->well_id])->update(['cbA'=>$cbA,]);    
-            Calculo::where(['well_id' =>$p->well_id])->update(['totalM'=>$p->totalM,]);    
+            $cbA=round($this->informe->oilB*$porce/100,2);
+            Calculo::where(['well_id' =>$p->well_id])->update(['porce'=>(round($porce,2))]); 
+            Calculo::where(['well_id' =>$p->well_id])->update(['cbA'=>round($cbA,2)]);    
+            Calculo::where(['well_id' =>$p->well_id])->update(['totalM'=>round($p->totalM,2)]);    
             
         }
         
@@ -395,8 +416,8 @@ class DdjjComponent extends Component
         
           //ahora obtengo totales de pozo
         foreach($data as $d){            
-            Calculo::where(['well_id' =>$d->well_id])->update(['oilB'=>$d->oilB,]); 
-            Calculo::where(['well_id' =>$d->well_id])->update(['aguaM3'=>$d->aguaM3,]);    
+            Calculo::where(['well_id' =>$d->well_id])->update(['oilB'=>round($d->oilB,2)]); 
+            Calculo::where(['well_id' =>$d->well_id])->update(['aguaM3'=>round($d->aguaM3,2)]);    
         }
 
         //Vuelvo a recorrer pozo por pozo día por día
@@ -420,17 +441,19 @@ class DdjjComponent extends Component
         } 
         $pozos=Calculo::orderBy('id')->get();
         foreach($pozos as $p){     
-          $pCalculo=round(($aguaAllegarOil*$p->porce/100),2);
+          
+          $pCalculo=round(($aguaAllegarOil*$p->porce/100),2); //ok
+          $totalG=Calculo::where(['well_id' => $p->well_id])->sum('cg');          
+          $totalG=round($totalG,2);
+          $porceCalculo=round(($pCalculo*100/$totalG),2);
           for($i=$fechaInicio; $i<=$fechaFin; $i+=86400){            
-            $cF=round(($p->cb*100/$p->totalM),2);            
-            $totalG=Calculo::where(['well_id'=> $p->well_id])->sum('cg');           
-            $porceCalculo=round(($pCalculo*100/$totalG),2); 
+            $cF=round(($p->cb*100/$p->totalM),0);          
             Calculo::query()
             ->where('id', $p->id)           
             ->update([
                 'ci' =>round($porceCalculo,2), 
                 'cj'=>round(($porceCalculo*$p->cg/100),2),
-                'ch'=>$p->cg- (round($porceCalculo,2)*($p->cg/100)) //es la que se informa en CIV
+                'ch'=>round($p->cg,2)- (round($porceCalculo,2)*($p->cg/100)) //es la que se informa en CIV
             ]);
            } //termina un pozo todo el mes         
          
@@ -439,8 +462,9 @@ class DdjjComponent extends Component
        
         ///Datos Finales
         $data= Calculo::select(
-          DB::raw('sum(calculos.ch) as oilB'),
+          DB::raw('avg(calculos.porce) as porce'),
           DB::raw('sum(calculos.cj) as aguaM3'),
+          DB::raw('sum(calculos.cf) as porcea'),
    
           DB::raw("calculos.well_id"),
           )
@@ -455,7 +479,7 @@ class DdjjComponent extends Component
                 'well_id' =>$p->well_id,
                 'pozo' => $pozo->pozo, // nombre pozo
                 'idpozo' => $pozo->idpozo, //idpozo ddjj
-                'prod_pet' => $p['oilB'], //producciion petroleo
+                'prod_pet' => round(($p['porce']* $this->informe->oilD/100),2), //producciion petroleo
                 'prod_gas' =>0 ,// cero en Oil
                 'prod_agua' => $p['aguaM3'],
                 'iny_agua' =>0,

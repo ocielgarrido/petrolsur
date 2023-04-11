@@ -248,6 +248,7 @@ class ReportController extends Controller
     }
 
     public function storeProdMensual($data){
+       
        $results=array(
         'area_id' => 1,
         'fecha' =>$data['fecha'],

@@ -31,7 +31,7 @@
             <td>{{ $c->prod_bruta_mt3 }}</td>
             <td>{{ $c->agua_emul_por }}</td>
             <td>{{ $c->oil_neto_mt3 }}</td>
-            <td>{{ $c->agua_neto_mt3 }}</td>
+            <td>{{ $c->agua_neto_24 }}</td>
             <td>{{ $c->gas_neto_mt3 }}</td>
             <td>{{ $c->prod_bruta_24 }}</td>
         </tr>
