@@ -3,24 +3,24 @@
     <thead>
     <tr><td colspan="11" style="text-align: center;font-size: 14px;font-weight: bold">CONTROLES DE POZO</td></tr>    
     <tr>
-        <th style="text-align: center;font-size: 12px;font-weight: bold">ID Pozo</th>
-        <th style="text-align: center;font-size: 12px;font-weight: bold">Pozo</th>
-        <th style="text-align: center;font-size: 12px;font-weight: bold">Cap.IV</th>
-        <th style="text-align: center;font-size: 12px;font-weight: bold">Pet</th>
-        <th style="text-align: center;font-size: 12px;font-weight: bold">Fecha</th>
-        <th style="text-align: center;font-size: 12px;font-weight: bold">Bruta M3</th>
-        <th style="text-align: center;font-size: 12px;font-weight: bold">% Agua</th>
-        <th style="text-align: center;font-size: 12px;font-weight: bold">Oil Neto</th>
-        <th style="text-align: center;font-size: 12px;font-weight: bold">Agua Neta</th>
-        <th style="text-align: center;font-size: 12px;font-weight: bold">Gas Neto</th>
-        <th style="text-align: center;font-size: 12px;font-weight: bold">Prod. Bruta</th>
+        <th style="text-align: center;font-size: 10px;font-weight: bold" >ID Pozo</th>
+        <th style="text-align: center;font-size: 10px;font-weight: bold">Pozo</th>
+        <th style="text-align: center;font-size: 10px;font-weight: bold" >N. Cap.IV</th>
+        <th style="text-align: center;font-size: 10px;font-weight: bold">Pet</th>
+        <th style="text-align: center;font-size: 10px;font-weight: bold">Fecha</th>
+        <th style="text-align: center;font-size: 10px;font-weight: bold">Bruta M3</th>
+        <th style="text-align: center;font-size: 10px;font-weight: bold">% Agua</th>
+        <th style="text-align: center;font-size: 10px;font-weight: bold">Oil Neto</th>
+        <th style="text-align: center;font-size: 10px;font-weight: bold">Agua Neta</th>
+        <th style="text-align: center;font-size: 10px;font-weight: bold">Gas Neto</th>
+        <th style="text-align: center;font-size: 10px;font-weight: bold">Prod. Bruta</th>
 
     </tr>
     </thead>
     <tbody>
     @foreach($controles as $c)
     @php 
-      $NuevaFecha = date('d-m-Y', strtotime($c->fecha));
+      $NuevaFecha = date('d/m/Y', strtotime($c->fecha));
     @endphp 
         <tr>
             <td>{{ $c->idpozo }}</td>

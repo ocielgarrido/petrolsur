@@ -21,11 +21,5 @@ class DDJJController extends Controller
        
      }
 
-     public function generarTxt(){
-        $nombreArchivo = "hola.txt";
-        $archivo = fopen($nombreArchivo, "w");
-        fwrite($archivo, "Hola mundo. Parzibyte.me");
-        fclose($archivo);
-     }
-
+    
 }

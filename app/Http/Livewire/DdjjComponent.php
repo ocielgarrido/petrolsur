@@ -109,43 +109,44 @@ class DdjjComponent extends Component
     }
     //Función que genera el txt
     public function escribirTxt($desde){
-      $periodo=date_create($desde);         
-      $filename=$periodo->format('Y-m');     
-      $fecha=$periodo->format('Y-m-d');  
+        $periodo=date_create($desde);         
+        $filename=$periodo->format('Y-m');     
+        $fecha=$periodo->format('Y-m-d');  
 
-      $contents=Djj::all();
-      $informe=Informem::where(['fecha' =>$fecha])->first(); 
-      $filename= Storage::disk('ddjj')->path('CIV\\' .$informe->fileCapIV);  //Ubicacion del txt  
-      
-      if(!File::exists($filename)){
-        $filename=$periodo->format('Y-m');
-        Storage::disk('ddjj')->put('CIV/CAP_IV_PetrolSur_' . $filename .  '.txt','');
+        $contents=Djj::select('*')->orderBy('idpozo','desc')->get();
+     //   dd($contents);
+        $informe=Informem::where(['fecha' =>$fecha])->first(); 
         $filename= Storage::disk('ddjj')->path('CIV\\' .$informe->fileCapIV);  //Ubicacion del txt  
-
-      }
-      $count=djj::count();
-      $file = fopen($filename, "w");
-      foreach($contents as $c) {
-        $linea=$c->idpozo .';' . round($c->prod_pet,2) .';' . round($c->prod_gas,2) .';0.00;0.00;0.00;0.00;0.00;' . round($c->v_util,2) . $c->pist . ';' . $c->well_state_id . ';' . $c->pet. ';';       
-        fwrite($file, $linea . PHP_EOL);
-      }
-      fclose($file);
-      $this->gas=1;   
-      $this->datosF=Djj::all();        
-      $this->informe=Informem::select('*')->where(['fecha' => $fecha])->first();    ;
-      $this->totales= Djj::select(
-       DB::raw('sum(djjs.prod_pet) as toil'),
-       DB::raw('sum(djjs.prod_gas) as tgas'),
-       DB::raw('sum(djjs.prod_agua) as tagua'),
-       )   
-      ->get('toil','tgas', 'tagua');  
-      // $i=0;
-      //  while($i <= $count){
-      //    $linea=$c->idpozo .';' . round($c->prod_pet,2) .';' . round($c->prod_gas,2) .';0.00;0.00;0.00;0.00;0.00;' . round($c->v_util,2) . $c->pist . ';' . $c->well_state_id . ';' . $c->pet. ';';       
-      //    fwrite($file, $linea . PHP_EOL);
-      //     $i++;
-      //  }
         
+        if(!File::exists($filename)){
+          $filename=$periodo->format('Y-m');
+          Storage::disk('ddjj')->put('CIV/CAP_IV_PetrolSur_' . $filename .  '.txt','');
+          $filename= Storage::disk('ddjj')->path('CIV\\' .$informe->fileCapIV);  //Ubicacion del txt  
+
+        }
+        $file = fopen($filename, "w");           
+          $i = 0;
+          while($i < $contents->count()){           
+            $linea=$contents[$i]['idpozo'] .';' . round($contents[$i]['prod_pet'],2) .';' . round($contents[$i]['prod_gas'],2) .';0.00;0.00;0.00;0.00;' . round($contents[$i]['tef'],2) . ';' . round($contents[$i]['v_util'],2) . ';' .  $contents[$i]['pist'] . ';' . $contents[$i]['well_state_id'] . ';' . $contents[$i]['pet']. ';';  
+            if ($i==($contents->count()-1)) {
+              fwrite($file, $linea );
+            }else{
+              fwrite($file, $linea . PHP_EOL);
+            }    
+            
+            $i++;
+          }       
+        fclose($file);
+        $this->gas=1;   
+        $this->datosF=Djj::all();        
+        $this->informe=Informem::select('*')->where(['fecha' => $fecha])->first();    ;
+        $this->totales= Djj::select(
+        DB::raw('sum(djjs.prod_pet) as toil'),
+        DB::raw('sum(djjs.prod_gas) as tgas'),
+        DB::raw('sum(djjs.prod_agua) as tagua'),
+        )   
+        ->get('toil','tgas', 'tagua');  
+          
 
 
     }
@@ -154,7 +155,7 @@ class DdjjComponent extends Component
     public function verificarInforme($desde){
       $periodo=date_create($desde);         
       $filename=$periodo->format('Y-m');     
-       $fecha=$periodo->format('Y-m-d');  
+      $fecha=$periodo->format('Y-m-d');  
      
       $count=Informem::where(['fecha' => $fecha])->count();
       if($count==1){
@@ -221,7 +222,7 @@ class DdjjComponent extends Component
                   'porce'  => 0, //porcentaje 
                   'cbA'    =>0,  // Al cual debo llegar que será el total
                   'id_control' => $controlP->id
-                  
+                   
                   ];             
                   $calculo[]=$result;
              
@@ -261,7 +262,9 @@ class DdjjComponent extends Component
       //Calculo totales para completar resto campos (me sirve en cierta forma)
           $data= Calculo::select(
             DB::raw('sum(calculos.ce) as tAgua'),
+            DB::raw('sum(calculos.tef) as tef'),
             DB::raw('avg(calculos.cbA) as tGas'),
+            DB::raw('avg(calculos.dias) as dias'),
             DB::raw("calculos.well_id"),
             )
           ->groupBy('calculos.well_id')
@@ -284,9 +287,10 @@ class DdjjComponent extends Component
             'prod_agua' =>round($p->tAgua,2), //produccion agua
             'iny_agua' =>0,
             'iny_co' =>0,
-            'iny_otro' =>0,
-            'v_util'=>0, //$dias-$p['tef'],
-            'pist' => 'GS', //Tipo Extraxion Gas Lift por ejemplo
+            'iny_otro' =>0,            
+            'v_util'=>$p->dias-$p->tef,
+            'tef' => $p->tef,
+            'pist' => $p->pist,//Tipo Extraxion Gas Lift por ejemplo
             'pet'=>$datosWell->pet,
             'well_state_id' =>$arap->codigo     
           ];
@@ -299,8 +303,8 @@ class DdjjComponent extends Component
     //Funcion que calcula Oil Deshidratado a informar
     public function calcularOil($desde, $hasta){
         DB::table('calculos')->delete();
-      $pozos =Well::select('*')->where(['pet'=>'PET','well_state_id' =>8 ])->orderBy('id')->get();
-      //  $pozos =Well::select('*')->where(['pet'=>'PET','id' =>2])->orderBy('id')->get();
+        $pozos =Well::select('*')->where(['pet'=>'PET','well_state_id' =>8 ])->orderBy('id')->get();
+     // $pozos =Well::select('*')->where(['pet'=>'PET','id' =>2])->orderBy('id')->get();
         $primerDia=date_create($desde); 
        
         //fechas para consultas  
@@ -463,6 +467,8 @@ class DdjjComponent extends Component
         ///Datos Finales
         $data= Calculo::select(
           DB::raw('avg(calculos.porce) as porce'),
+          DB::raw('avg(calculos.dias) as dias'),
+          DB::raw('sum(calculos.tef) as tef'),
           DB::raw('sum(calculos.cj) as aguaM3'),
           DB::raw('sum(calculos.cf) as porcea'),
    
@@ -485,8 +491,9 @@ class DdjjComponent extends Component
                 'iny_agua' =>0,
                 'iny_co' =>0,
                 'iny_otro' =>0,
-                'v_util'=>0,
-                'pist' => 'GS', //Tipo Extraxion Gas Lift por ejemplo
+                'v_util'=>$p->dias-$p->tef,
+                'tef' => $p->tef,
+                'pist' => $p->pist, //Tipo Extraxion Gas Lift por ejemplo
                 'pet'=>$pozo->pet,
                 'well_state_id' =>$pozo->well_state->codigo
               ];

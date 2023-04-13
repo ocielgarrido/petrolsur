@@ -12,8 +12,11 @@
         </div>
     </x-slot>
     <div class="grid grid-cols-6 md:grid-cols-12 gap-2">
+        <div wire:loading wire:target="calcularDdjj" style="display: flex; justify">                    
+            <x-loading class="mr-4"/>
+         </div> 
         <div class="col-span-6 md:col-span-3 bg-white-800 p-4 border-2 border-blue-500 border-opacity-100">
-            <div wire:ignore>  
+            <div >  
                 <div>
                     <br>
                     <hr style="width: 100%">
@@ -62,9 +65,10 @@
                 </div> 
                 
                         
-                <div class="form-group col-span-6 sm:col-span-5">       
-                    <div class="mx-2 text-center"> 
-                        <button wire:click='calcularDdjj()' class="inline-flex items-center px-4 py-2 bg-red-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700 active:bg-gray-900 focus:outline-none focus:border-gray-900 focus:shadow-outline-gray disabled:opacity-25 transition ease-in-out duration-150"  ><i class="fa fa-magnifying-glass"></i>&nbsp&nbspGenerar</button>
+                <div class="form-group col-span-2 sm:col-span-5">                     
+                    <div class="flex flex-items-center"> 
+                                                                                              
+                        <button  wire:click="calcularDdjj" class="inline-flex items-center px-2 py-2 bg-red-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700 active:bg-gray-900 focus:outline-none focus:border-gray-900 focus:shadow-outline-gray disabled:opacity-25 transition ease-in-out duration-150"  ><i class="fa fa-magnifying-glass"></i>&nbsp&nbspGenerar</button>
                     </div> 
                 </div>          
             
@@ -77,18 +81,18 @@
                 <table style="width: 100%; border: 1px solid black;">
                     <thead >
                         <tr style=" border-bottom: solid 1px #df7e37;">
-                            <th colspan="9" style="text-align: center; color:blue"> DDJJ Cap. IV</th>
+                            <th colspan="9" style="text-align: center; color:blue"> DDJJ Cap. IV Mes: {{$informe->fecha->format('m-Y')}}</th>
                         </tr>    
                         <tr style=" border-bottom: solid 1px #df7e37;">
-                            <th style=" border-right: solid 1px #df7e37;">Pozo</th>
-                            <th style=" border-right: solid 1px #df7e37;" >P.Oil</th>
-                            <th style=" border-right: solid 1px #df7e37;">P.Gas</th>
-                            <th style=" border-right: solid 1px #df7e37">P.Agua</th>
-                            <th style=" border-right: solid 1px #df7e37">TEF</th>
-                            <th style=" border-right: solid 1px #df7e37">V.Util</th>
-                            <th style=" border-right: solid 1px #df7e37">Pist</th>
-                            <th style=" border-right: solid 1px #df7e37">ARAP</th>
-                            <th style=" border-right: solid 1px #df7e37">PET</th>
+                            <th class="text-left" style=" border-right: solid 1px #df7e37;">Pozo</th>
+                            <th class="text-right" style=" border-right: solid 1px #df7e37;" >P.Oil (Mt3)</th>
+                            <th class="text-right" style=" border-right: solid 1px #df7e37;">P.Gas (M.Mt3)</th>
+                            <th class="text-right" style=" border-right: solid 1px #df7e37">P.Agua (Mt3)</th>
+                            <th class="text-right" style=" border-right: solid 1px #df7e37">TEF (Dias)</th>
+                            <th class="text-center" style=" border-right: solid 1px #df7e37">V.Util (Dias)</th>
+                            <th class="text-center" style=" border-right: solid 1px #df7e37">Pist</th>
+                            <th class="text-center" style=" border-right: solid 1px #df7e37">ARAP</th>
+                            <th class="text-center" style=" border-right: solid 1px #df7e37">PET</th>
                         </tr>
                     </thead>
                     <tbody>   
@@ -98,11 +102,11 @@
                             <td class="text-right" style=" border-right: solid 1px #df7e37;">{{$d->prod_pet}}</td>
                             <td class="text-right" style=" border-right: solid 1px #df7e37;">{{$d->prod_gas}}</td>
                             <td class="text-right" style=" border-right: solid 1px #df7e37;">{{$d->prod_agua}}</td>
+                            <td class="text-right" style=" border-right: solid 1px #df7e37;">{{$d->tef}}</td>
                             <td class="text-right" style=" border-right: solid 1px #df7e37;">{{$d->v_util}}</td>
-                            <td class="text-right" style=" border-right: solid 1px #df7e37;">{{$d->v_util}}</td>
-                            <td class="text-right" style=" border-right: solid 1px #df7e37;">{{$d->well_state_id}}</td>
-                            <td class="text-right" style=" border-right: solid 1px #df7e37;">{{$d->pist}}</td>
-                            <td class="text-right" style=" border-right: solid 1px #df7e37;">{{$d->pet}}</td>
+                            <td class="text-center" style=" border-right: solid 1px #df7e37;">{{$d->well_state_id}}</td>
+                            <td class="text-center" style=" border-right: solid 1px #df7e37;">{{$d->pist}}</td>
+                            <td class="text-center" style=" border-right: solid 1px #df7e37;">{{$d->pet}}</td>
                         <tr>   
                 @empty    
                         <tr>
@@ -112,7 +116,7 @@
                 
                     </tbody>   
                     <tfoot> 
-                        <tr style=" border-top: solid 1px #df7e37;">
+                        <tr style="border-top: solid 1px #df7e37;">
                             <td class="text-right">Totales</td>                                       
                             <td class="text-right">{{$totales[0]['toil']}}</td>
                             <td class="text-right">{{$totales[0]['tgas']}}</td>
@@ -136,9 +140,9 @@
                             <th colspan="3" style="text-align: center; color:blue">Resumen Informe Mensual</th>
                         </tr> 
                         <tr style=" border-top: solid 1px #df7e37;">
-                            <td class="text-right">Total Oil D.</td>                                       
-                            <td class="text-right">Total Gas</td>
-                            <td class="text-right">Total Agua</td>
+                            <th class="text-right">Total Oil D.</th>                                       
+                            <th class="text-right">Total Gas</th>
+                            <th class="text-right">Total Agua</th>
                         </tr>    
                     </thead>
                     <tbody>

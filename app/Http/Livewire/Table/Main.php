@@ -76,7 +76,7 @@ class Main extends Component
                     //calculo total de liquido           
                     $tabla=Htablet::select("fv")->where("fh","=",$fhTotal)->first();
                     $fvTotal=floatval($tabla->fv);
-                    $volumen=round(($volTotal*$fvTotal),3);
+                    $volumen=round(($volTotal*$fvTotal),2);
                     //Calculo total Agua 
                     $tabla=Htablet::where("fh","=",$fhAgua)->first();                
                     $fvAgua=$tabla->fv;               
