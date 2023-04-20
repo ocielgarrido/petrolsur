@@ -1,7 +1,10 @@
 <div>
     @include('common.alerts');
     @include('common.messages');
-
+     <div wire:loading wire:target="calcularDdjj">                    
+        <x-loading-indicator />
+        {{-- <x-loading class="mr-4"/> --}}
+     </div>    
     <x-slot name="header_content">
         <h3>Declaraciones Juradas</h3>
 
@@ -12,9 +15,6 @@
         </div>
     </x-slot>
     <div class="grid grid-cols-6 md:grid-cols-12 gap-2">
-        <div wire:loading wire:target="calcularDdjj" style="display: flex; justify">                    
-            <x-loading class="mr-4"/>
-         </div> 
         <div class="col-span-6 md:col-span-3 bg-white-800 p-4 border-2 border-blue-500 border-opacity-100">
             <div >  
                 <div>
@@ -62,12 +62,9 @@
                         <input type="text" id="hasta" class="form-control flatpickr" data-toggle="date" wire:model.defer="hasta"  placeholder="Seleccione fecha" required >
                         <x-jet-input-error for="hasta" class="mt-2" />
                     </div> 
-                </div> 
-                
-                        
+                </div>                        
                 <div class="form-group col-span-2 sm:col-span-5">                     
-                    <div class="flex flex-items-center"> 
-                                                                                              
+                    <div class="mx-2">                                                                                          
                         <button  wire:click="calcularDdjj" class="inline-flex items-center px-2 py-2 bg-red-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700 active:bg-gray-900 focus:outline-none focus:border-gray-900 focus:shadow-outline-gray disabled:opacity-25 transition ease-in-out duration-150"  ><i class="fa fa-magnifying-glass"></i>&nbsp&nbspGenerar</button>
                     </div> 
                 </div>          

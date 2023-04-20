@@ -12,6 +12,7 @@ class TankControlCreate extends Component
     public $tankcontrol;
     public $tankcontrolId;
     public $tank;
+    public $tanks;
     public $action;
     public $button;
     public $fechaHoy,$primerDia;

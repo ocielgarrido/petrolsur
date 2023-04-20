@@ -26,7 +26,7 @@
                         <x-jet-label for="report.area_id" value="{{ __('Area:') }}" />
                         <select class="form-select" wire.model.defer="area_id" style="width: 100%" required autofocus>
                             <option value="--">--Seleccione--</option>                        
-                            <option value="1">CCO-NORTE</option>                                           
+                            <option value="1" selected>CCO-NORTE</option>                                           
                         </select>
                         <x-jet-input-error for="report.area_id" class="mt-2" />   
                     </div>
@@ -35,7 +35,7 @@
                 <div class="form-group col-span-6 sm:col-span-5">
                     <div class="mx-2">    
                         <x-jet-label for="report.reportId" value="{{ __('Reporte:') }}" />
-                        <select class="form-select" wire:model.defer="report.reportId" style="width: 100%"  onchange="getval(this);" required  >
+                        <select class="form-select" id="reportId" wire:model.defer="report.reportId" style="width: 100%"  onchange="getval(this);" required  >
                             <option value="--">--Seleccione--</option>
                             @foreach($reports as $reports)
                             <option value="{{$reports->id}}">{{$reports->titulo}}</option>   
@@ -53,7 +53,7 @@
                     </div>  
                 </div>   
 
-                <div class="form-group col-span-6 sm:col-span-5" id="fechaTo" hidden >
+                <div class="form-group col-span-6 sm:col-span-5" id="fechaTo" >
                     <div class="mx-2"> 
                         <x-jet-label for="report.fechato" value="{{ __('Hasta') }}" />
                         <input type="text" id="inputfechaTo" class="form-control flatpickr" data-toggle="date" wire:model.defer="report.fechaTo"  placeholder="Seleccione fecha" required >
@@ -363,27 +363,27 @@
                                     <th class="text-right">Promedio</th>
                                 </tr>
                                 <tr>
-                                    <td >Producción Bruta: </td>
+                                    <td >Producción bruta de líquidos</td>
                                     <td class="text-right">{{floatval($datosprod['prod_bruta'])}}</td>
                                     <td class="text-right">{{floatval($datosprod['prod_brutaDia'])}}</td>
                                 </tr>
                                 <tr>
-                                    <td>Oil Hidratado </td>
+                                    <td>Crudo Hidratado </td>
                                     <td class="text-right">{{floatval($datosprod['prod_oil'])}} </td>
                                     <td class="text-right">{{floatval($datosprod['prod_oilDia'])}} </td>
                                 </tr>
                                 <tr>
-                                    <td>Oil Deshidratado</td>
+                                    <td>Crudo Deshidratado</td>
                                     <td class="text-right">{{floatval($datosprod['prod_oilD'])}} </td>
                                     <td class="text-right">{{floatval($datosprod['prod_oilDDia'])}} </td>
                                 </tr>
                                 <tr>
-                                    <td>Ventas Gas a9300 </td>
+                                    <td>Gas despachado a TGS m3 a 9300</td>
                                     <td class="text-right">{{floatval($datosprod['prod_gas'])}} </td>
                                     <td class="text-right">{{floatval($datosprod['prod_gasDia'])}} </td>
                                 </tr>
                                 <tr>
-                                    <td>Ventas Gas pm316 </td>
+                                    <td>Gas estándar despachado a TGS</td>
                                     <td class="text-right">{{floatval($datosprod['prod_gas316'])}} </td>
                                     <td class="text-right">{{floatval($datosprod['prod_gas316Dia'])}} </td>
                                 </tr>
@@ -393,12 +393,12 @@
                                     <td class="text-right">{{floatval($datosprod['prod_aguaDia'])}} </td>
                                 </tr>
                                 <tr>
-                                    <td>Ventas Oil </td>
+                                    <td>Despacho de crudo del período</td>
                                     <td class="text-right">{{floatval($datosprod['ventas'])}} </td>
                                     <td class="text-right">&nbsp;</td>
                                 </tr>
                                 <tr>
-                                    <td>Gasolina </td>
+                                    <td>Gasolina recepcionada en tanque</td>
                                     <td class="text-right">{{floatval($datosprod['gasolina'])}} </td>
                                     <td class="text-right">&nbsp;</td>
                                 </tr>
@@ -541,12 +541,12 @@
                 locale: "es",
             
             })
-        }) 
+       }) 
         
     </script> 
     <script>    
-        function openUrl(rpTId, dTo, dFrom, well){
-         if( rpTId=="1" || rpTId=="2"){   
+    function openUrl(rpTId, dTo, dFrom, well){
+         if( rpTId=="2"){   
             Swal.fire({
                 title: 'Está Seguro de confirmar Parte',
                 text: "Los datos quedarán cerrados",
@@ -567,18 +567,24 @@
                     window.location.href = 'report'; 
                 }
             })
-          }else if ( rpTId=="4" ){
+        }else if ( rpTId=="1" ){
+            var url='report/'+rpTId + '/' + dTo + '/' + dFrom+ '/'+ 0;                       
+            window.open(url, "_blank");
+            window.location.href = 'report'; 
+ 
+        
+        }else if ( rpTId=="4" ){
              var url='report/4/0/0/0';   
              window.open(url, "_blank");
              window.location.href = 'report'; 
               
-          }else{
+        }else{
             var url='report/'+rpTId + '/' + dTo + '/' + dFrom + '/' + well;   
              window.open(url, "_blank");
              window.location.href = 'report'; 
 
-          }
         }
+    }
     
     </script>  
     <script>
@@ -630,6 +636,12 @@
             $("#inputfechaTo").removeAttr("readonly");        
             $("#inputfechaTo").val(date.value);
         }
-    </script>    
+    </script>  
+    <script>
+        $(document).ready(function () {
+   
+        });
+
+    </script>  
 @endpush
 

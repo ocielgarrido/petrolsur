@@ -27,8 +27,9 @@ class ReportCreate extends Component
 {
     protected $listeners = ['confirmarParte'];
 
-    public $report, $reports;
-    public $area_id="CCO-NORTE";
+    public $report;
+    public $reports;
+    public $area_id=1;
     public $reportId;
     public $fechaTo, $fechaFrom, $well_id;
     public $reportPreview;
@@ -36,8 +37,24 @@ class ReportCreate extends Component
     public $dataWellVariation,$dataWellDownTime,$dataWellControl,$dataWellIntervention,
     $dataCompressorDownTime,$dataNovedades, $dataWells;
     public $wells;
+    public $primerDia;
 
     public function render(){
+        switch ($this->report->reportId) {          
+            case '1':
+                $this->report->reportId=1;
+                break;
+            case '2':
+                $this->report->reportId=2;
+                break;
+            case '3':
+                $this->report->reportId=3;
+                break;
+            case '4':
+                $this->report->reportId=4;
+               break;
+                           
+        }
         $this->reports=Report::all();
         $this->wells= Well::select('*')->where( ['well_state_id' => 8, 'area_id' => 1])->get();
         $dataWellVariations='';
@@ -47,6 +64,7 @@ class ReportCreate extends Component
         $dataCompressorDownTime='';
         $dataNovedades='';
         $dataWells='';
+
         if ($this->datosprod==0 && $this->reportId==1){
             return view('livewire.report-create',[
                 'datos' =>0,
@@ -80,7 +98,7 @@ class ReportCreate extends Component
 
     protected function getRules(){        
         $rules = [
-            'area_id' => 'required',
+            'report.area_id' => 'required',
             'report.reportId' => 'required',
             'report.fechaFrom' => 'nullable',
             'report.fechaTo' => 'nullable',
@@ -92,8 +110,8 @@ class ReportCreate extends Component
     }
 
     public function mount (){   
-        $this->report = new report;  
-        $this->area_id="CCO-NORTE";  
+        $this->report =Report::find(1);  
+        $this->report->area_id=1;  
         $date=date_create($this->report->fechaFrom);           
         $date=date_create($this->report->fechaTo);           
         date_add($date,date_interval_create_from_date_string("-1 days"));     

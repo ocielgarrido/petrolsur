@@ -37,20 +37,21 @@ class Well extends Model
         'capacidad',
         'well_state_id', //PE=produccion efectiva, PT=parado transitorio, PE=parado en estudio (ARAP Cap IV)
         'pet', //Tipo pozo GAS PET 
-        'pist'  //tipo extraccion 
+        'pist',  //tipo extraccion 
+     
     ];
 
     public static function search($query)
     {
         return empty($query) ? static::query()
-            : static::join('well_controls','well.id','=', 'well_control.wel_id_id')
-                ->where('pozo', 'like', '%'.$query.'%')
+            : static::
+                 where('pozo', 'like', '%'.$query.'%')
                 ->orWhere('cap_iv_nombre', 'like', '%'.$query.'%')
-                ->orWhere('tipo', 'like', '%'.$query.'%')
-                ->orWhere('arap', 'like', '%'.$query.'%')
+                ->orWhere('pist', 'like', '%'.$query.'%')
                 ->orWhere('pozo', 'like', '%'.$query.'%')
-                ->orWhere('well_formation_id', 'like', '%'.$query.'%');
-
+                ->orWhere('pet', 'like', '%'.$query.'%')
+                ->orWhere('pist', 'like', '%'.$query.'%');
+ 
     }
 
    

@@ -90,10 +90,14 @@ class DdjjComponent extends Component
           if($result==true){
             DB::table('calculos')->delete();
             DB::table('djjs')->delete();
+           
             $this->calcularGas($this->desde,$this->hasta);
-            DB::table('calculos')->delete();
-            $this->calcularOil($this->desde,$this->hasta); 
+            session()->flash('message','Producción Gas calculado correctamente!!'); 
+            DB::table('calculos')->delete();       
+            $this->calcularOil($this->desde,$this->hasta);
+            session()->flash('message','Producción Gas calculado correctamente!!');
             $this->escribirTxt($this->desde);
+            session()->flash('message','Se ha generado archivo exitosamente!!');         
           }else{
             session()->flash('msg-error','No existe informe Mensual, debe generar antes de seguir!!');
           } 
@@ -290,7 +294,7 @@ class DdjjComponent extends Component
             'iny_otro' =>0,            
             'v_util'=>$p->dias-$p->tef,
             'tef' => $p->tef,
-            'pist' => $p->pist,//Tipo Extraxion Gas Lift por ejemplo
+            'pist' => $datosWell->pist,//Tipo Extraxion Gas Lift por ejemplo
             'pet'=>$datosWell->pet,
             'well_state_id' =>$arap->codigo     
           ];
@@ -493,7 +497,7 @@ class DdjjComponent extends Component
                 'iny_otro' =>0,
                 'v_util'=>$p->dias-$p->tef,
                 'tef' => $p->tef,
-                'pist' => $p->pist, //Tipo Extraxion Gas Lift por ejemplo
+                'pist' => $pozo->pist, //Tipo Extraxion Gas Lift por ejemplo
                 'pet'=>$pozo->pet,
                 'well_state_id' =>$pozo->well_state->codigo
               ];

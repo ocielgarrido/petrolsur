@@ -3,9 +3,9 @@
         <x-slot name="head">
             <tr>
             
-               <th><a wire:click.prevent="sortBy('id')" role="button" href="#">
+               <th><a wire:click.prevent="sortBy('wells.id')" role="button" href="#">
                     ID
-                    @include('components.sort-icon', ['field' => 'id'])
+                    @include('components.sort-icon', ['field' => 'wells.id'])
                 </a></th>
                     <th><a wire:click.prevent="sortBy('pozo')" role="button" href="#">
                     Pozo
@@ -38,15 +38,15 @@
                 </a></th>
                 <th><a wire:click.prevent="sortBy('well_state_id')" role="button" href="#">
                     Estado.
-                    @include('components.sort-icon', ['field' => 'well_state_id'])
+                    @include('components.sort-icon', ['field' => 'well_states_id'])
                 </a></th>
-                <th><a wire:click.prevent="sortBy('arap')" role="button" href="#">
+                <th><a wire:click.prevent="sortBy('pist')" role="button" href="#">
                     Tipo Ext.
-                    @include('components.sort-icon', ['field' => 'arap'])
+                    @include('components.sort-icon', ['field' => 'pist'])
                 </a></th>
-                <th><a wire:click.prevent="sortBy('tipo')" role="button" href="#">
+                <th><a wire:click.prevent="sortBy('pet')" role="button" href="#">
                     Tipo.
-                    @include('components.sort-icon', ['field' => 'tipo'])
+                    @include('components.sort-icon', ['field' => 'pet'])
                 </a></th>
                 <th>&nbsp;</th>
             </tr>
@@ -63,8 +63,8 @@
                     <td>{{ $well->longitud}}</td>
                     <td>{{ $well->profundidad}}</td>
                     <td scope="col" style="white-space: nowrap !important;">{{ $well->well_state->codigo}}</td>
-                    <td scope="col" style="white-space: nowrap !important;">{{ $well->arap}}</td>
-                    <td scope="col" style="white-space: nowrap !important;">{{ $well->tipo}}</td>
+                    <td scope="col" style="white-space: nowrap !important;">{{ $well->pist}}</td>
+                    <td scope="col" style="white-space: nowrap !important;">{{ $well->pet}}</td>
                     <td class="whitespace-no-wrap row-action--icon">
                         <a role="button" href="/well/edit/{{ $well->id }}" class="mr-3"><i class="fa fa-16px fa-pen"></i></a>
                         <a role="button" x-on:click.prevent="deleteItem" href="#"><i class="fa fa-16px fa-trash text-red-500"></i></a>
