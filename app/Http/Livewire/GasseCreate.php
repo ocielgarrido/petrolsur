@@ -41,6 +41,7 @@ class GasseCreate extends Component
 
     }
 
+    
 
     public function createGasse(){
         $this->resetErrorBag();
