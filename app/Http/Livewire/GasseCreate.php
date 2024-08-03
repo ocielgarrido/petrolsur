@@ -40,8 +40,8 @@ class GasseCreate extends Component
         ], $rules);
 
     }
+//cambios
 
-    
 
     public function createGasse(){
         $this->resetErrorBag();
